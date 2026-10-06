@@ -1,0 +1,6 @@
+order_id,order_date,channel,status,amount_vnd
+O1,2026-08-30,online,completed,100000
+O2,2026-08-31,store,completed,200000
+O3,2026-09-01,online,completed,300000
+O4,2026-09-15,online,completed,400000
+O5,2026-09-20,store,cancelled,500000

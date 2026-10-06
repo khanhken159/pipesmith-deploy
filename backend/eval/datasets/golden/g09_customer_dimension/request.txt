@@ -1,0 +1,1 @@
+Bảng customers lưu nhiều phiên bản của một khách (mỗi lần cập nhật một dòng, cột updated_at). Tạo bảng chiều dim_customers, mỗi khách một dòng: customer_id, email và city lấy từ bản ghi có updated_at mới nhất, completed_orders (số đơn status completed trong bảng orders, không có thì 0).

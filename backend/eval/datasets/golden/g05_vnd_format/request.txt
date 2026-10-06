@@ -1,0 +1,1 @@
+Cột total_amount của shopee_orders là chuỗi tiền VND, có thể dùng dấu chấm phân cách hàng nghìn (ví dụ 1.075.000 nghĩa là một triệu bảy mươi lăm nghìn) hoặc không. Tính doanh thu theo ngày của các đơn COMPLETED. Bảng đích fct_daily_revenue, các cột: order_date (DATE, ngày đặt đơn), order_count (số đơn được tính), revenue_vnd (tổng tiền VND, số nguyên).

@@ -1,0 +1,52 @@
+{
+ "task": "pinterest",
+ "tables": {
+  "advertiser_report": {
+   "kind": "postgres",
+   "file": "advertiser_report.parquet"
+  },
+  "campaign_history": {
+   "kind": "postgres",
+   "file": "campaign_history.parquet"
+  },
+  "campaign_report": {
+   "kind": "postgres",
+   "file": "campaign_report.parquet"
+  },
+  "keyword_report": {
+   "kind": "mongodb",
+   "file": "keyword_report.parquet"
+  },
+  "keyword_history": {
+   "kind": "aws_s3",
+   "file": "keyword_history.csv"
+  },
+  "pin_promotion_report": {
+   "kind": "aws_s3",
+   "file": "pin_promotion_report.json"
+  },
+  "ad_group_history": {
+   "kind": "aws_s3",
+   "file": "ad_group_history.csv"
+  },
+  "ad_group_report": {
+   "kind": "custom_api",
+   "file": "ad_group_report.parquet"
+  },
+  "pin_promotion_history": {
+   "kind": "custom_api",
+   "file": "pin_promotion_history.parquet"
+  },
+  "advertiser_history": {
+   "kind": "flat_files",
+   "file": "advertiser_history.json"
+  }
+ },
+ "models_with_ground_truth": [
+  "pinterest_ads__ad_group_report",
+  "pinterest_ads__advertiser_report",
+  "pinterest_ads__campaign_report",
+  "pinterest_ads__keyword_report"
+ ],
+ "origin": "ELT-Bench-Verified (CC BY-SA 4.0), github.com/czanoli/ELT-Bench nhánh elt-bench-pr"
+}

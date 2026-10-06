@@ -1,0 +1,5 @@
+id: g01_three_sources
+expect_questions: false
+score: result
+trap: gộp 3 nguồn khác định dạng (CSV, JSON giống API)
+expected_mode: ELT

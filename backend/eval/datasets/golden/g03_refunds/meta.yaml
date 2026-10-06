@@ -1,0 +1,5 @@
+id: g03_refunds
+expect_questions: false
+score: result
+trap: đơn hoàn tiền
+expected_mode: ELT

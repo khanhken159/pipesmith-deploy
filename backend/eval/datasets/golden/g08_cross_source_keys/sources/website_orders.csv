@@ -1,0 +1,3 @@
+order_id,created_ts,status,amount_vnd
+1001,2026-09-01 10:00:00,paid,300000
+1003,2026-09-02 10:00:00,paid,400000

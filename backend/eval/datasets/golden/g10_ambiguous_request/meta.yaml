@@ -1,0 +1,5 @@
+id: g10_ambiguous_request
+expect_questions: true
+score: questions_only
+trap: yêu cầu mơ hồ — agent PHẢI hỏi làm rõ trước khi sinh code
+expected_mode: ELT

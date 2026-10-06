@@ -1,0 +1,65 @@
+{
+ "task": "mailchimp",
+ "tables": {
+  "campaign_recipient_activity": {
+   "kind": "postgres",
+   "file": "campaign_recipient_activity.parquet"
+  },
+  "member": {
+   "kind": "postgres",
+   "file": "member.parquet"
+  },
+  "segment": {
+   "kind": "mongodb",
+   "file": "segment.parquet"
+  },
+  "segment_member": {
+   "kind": "mongodb",
+   "file": "segment_member.parquet"
+  },
+  "automation_recipient": {
+   "kind": "aws_s3",
+   "file": "automation_recipient.csv"
+  },
+  "campaign": {
+   "kind": "aws_s3",
+   "file": "campaign.json"
+  },
+  "automation_email": {
+   "kind": "custom_api",
+   "file": "automation_email.parquet"
+  },
+  "automation_recipient_activity": {
+   "kind": "custom_api",
+   "file": "automation_recipient_activity.parquet"
+  },
+  "list": {
+   "kind": "custom_api",
+   "file": "list.parquet"
+  },
+  "unsubscribe": {
+   "kind": "custom_api",
+   "file": "unsubscribe.parquet"
+  },
+  "automation": {
+   "kind": "flat_files",
+   "file": "automation.json"
+  },
+  "campaign_recipient": {
+   "kind": "flat_files",
+   "file": "campaign_recipient.parquet"
+  }
+ },
+ "models_with_ground_truth": [
+  "mailchimp__automation_activities",
+  "mailchimp__automation_emails",
+  "mailchimp__automations",
+  "mailchimp__campaign_activities",
+  "mailchimp__campaign_recipients",
+  "mailchimp__campaigns",
+  "mailchimp__lists",
+  "mailchimp__members",
+  "mailchimp__segments"
+ ],
+ "origin": "ELT-Bench-Verified (CC BY-SA 4.0), github.com/czanoli/ELT-Bench nhánh elt-bench-pr"
+}

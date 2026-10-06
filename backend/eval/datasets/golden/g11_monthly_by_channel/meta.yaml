@@ -1,0 +1,5 @@
+id: g11_monthly_by_channel
+expect_questions: false
+score: result
+trap: grain hai cột (tháng, kênh)
+expected_mode: ELT

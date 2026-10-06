@@ -1,0 +1,88 @@
+# Lỗi giả (đột biến) cấy vào pipeline đúng (pipeline mẫu "doanh thu ngày 3 nguồn", sinh tất định bằng mock).
+# Mỗi đột biến thay đúng một đoạn code; `old` phải có trong file, nếu không thì đột biến bị đánh dấu "không áp dụng".
+# equivalent: true = đột biến không làm đổi kết quả (đối chứng) → bộ kiểm tra KHÔNG được báo lỗi.
+
+base_mart: models/marts/fct_daily_revenue.sql
+
+mutants:
+  - id: sum_to_avg
+    description: Đổi SUM → AVG khi tính doanh thu
+    file: models/marts/fct_daily_revenue.sql
+    old: "sum(amount_vnd)"
+    new: "avg(amount_vnd)"
+
+  - id: drop_where
+    description: Bỏ WHERE lọc trạng thái (tính cả đơn hủy/hoàn)
+    file: models/marts/fct_daily_revenue.sql
+    old: "where status in ('completed')\n"
+    new: ""
+
+  - id: widen_filter
+    description: Lọc sai trạng thái (tính cả đơn hoàn tiền)
+    file: models/marts/fct_daily_revenue.sql
+    old: "in ('completed')"
+    new: "in ('completed', 'refunded')"
+
+  - id: drop_dedup
+    description: Bỏ khử trùng đơn (tương đương bỏ DISTINCT) — bỏ cả hai lớp UNION và QUALIFY
+    file: models/marts/fct_daily_revenue.sql
+    old: ") = 1"
+    new: ") >= 1"
+    also:
+      - old: "    union\n"
+        new: "    union all\n"
+
+  - id: swap_columns
+    description: Đổi chỗ hai cột (số đơn ↔ doanh thu)
+    file: models/marts/fct_daily_revenue.sql
+    old: "count(*) as order_count,\n    cast(coalesce(sum(amount_vnd), 0) as bigint) as revenue_vnd"
+    new: "cast(coalesce(sum(amount_vnd), 0) as bigint) as order_count,\n    count(*) as revenue_vnd"
+
+  - id: count_distinct_id
+    description: Đếm đơn theo mã không kèm nguồn (chỉ sai khi có mã trùng giữa các nguồn)
+    file: models/marts/fct_daily_revenue.sql
+    old: "count(*) as order_count"
+    new: "count(distinct order_id) as order_count"
+
+  - id: count_non_null
+    description: Đếm đơn bằng count(cột tiền) — bỏ sót đơn thiếu số tiền
+    file: models/marts/fct_daily_revenue.sql
+    old: "count(*) as order_count"
+    new: "count(amount_vnd) as order_count"
+
+  - id: drop_source
+    description: Quên một nguồn khi gộp (bỏ website)
+    file: models/marts/fct_daily_revenue.sql
+    old: "    union\n    select * from {{ ref('stg_website_orders') }}\n"
+    new: ""
+
+  - id: date_format_swap
+    description: Đọc ngày sai định dạng (dd/mm ↔ mm/dd)
+    file: models/staging/stg_shopee_orders.sql
+    old: "'%d/%m/%Y'"
+    new: "'%m/%d/%Y'"
+
+  - id: money_parse_bug
+    description: Không bỏ dấu chấm ở số tiền "1.075.000"
+    file: models/staging/stg_shopee_orders.sql
+    old: "replace(cast(total_amount as varchar), '.', '')"
+    new: "cast(total_amount as varchar)"
+
+  - id: date_shift
+    description: Lệch ngày một ngày (sai múi giờ)
+    file: models/staging/stg_tiki_orders.sql
+    old: "cast(created_at as timestamp)::date as order_date"
+    new: "(cast(created_at as timestamp)::date + 1) as order_date"
+
+  - id: status_mapping_bug
+    description: Ánh xạ trạng thái sai ('paid' không được coi là hoàn tất)
+    file: models/staging/stg_website_orders.sql
+    old: "when 'paid' then 'completed'"
+    new: "when 'paid' then 'other'"
+
+  - id: union_all_control
+    description: "Đối chứng: UNION → UNION ALL (bước khử trùng phía sau vẫn xử lý trùng, kết quả không đổi)"
+    file: models/marts/fct_daily_revenue.sql
+    old: "    union\n"
+    new: "    union all\n"
+    equivalent: true

@@ -1,0 +1,14 @@
+# 10 pipeline nhẹ nhất (theo dung lượng dữ liệu nguồn) trong 95/100 task ELT-Bench-Verified có đủ dữ liệu
+# và đủ bảng kết quả đúng. Đo ngày 2026-10-02 từ data_db.zip / data_api.zip / ground_truth.zip.
+# Dung lượng (KB) và số model ghi kèm để tiện theo dõi.
+tasks:
+  - {name: human_resources, kb: 2, models: 2}
+  - {name: amplitude, kb: 7, models: 3}
+  - {name: computer_student, kb: 10, models: 1}
+  - {name: cs_semester, kb: 11, models: 3}
+  - {name: pinterest, kb: 12, models: 4}
+  - {name: asana, kb: 13, models: 5}
+  - {name: mailchimp, kb: 14, models: 9}
+  - {name: twilio, kb: 15, models: 1}
+  - {name: tiktok_ads, kb: 18, models: 4}
+  - {name: lever, kb: 22, models: 2}

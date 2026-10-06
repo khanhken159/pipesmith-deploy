@@ -1,0 +1,1 @@
+Gộp đơn hàng từ 3 nguồn shopee_orders, tiki_orders, website_orders và tính doanh thu theo ngày. Chỉ tính đơn đã hoàn tất: status COMPLETED (Shopee), state delivered (Tiki), status paid (website). Bảng đích fct_daily_revenue, các cột: order_date (DATE, ngày đặt đơn), order_count (số đơn được tính), revenue_vnd (tổng tiền VND, số nguyên).

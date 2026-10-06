@@ -1,0 +1,3 @@
+order_id,order_date,status,total_amount
+1001,01/09/2026,COMPLETED,100.000
+1002,01/09/2026,COMPLETED,200.000

@@ -1,0 +1,1 @@
+Gộp shopee_orders (đơn COMPLETED) và website_orders (đơn paid), tính doanh thu theo ngày. Mã đơn chỉ duy nhất trong từng nguồn: cùng order_id ở hai nguồn là hai đơn khác nhau, đều phải tính. Bảng đích fct_daily_revenue, các cột: order_date (DATE, ngày đặt đơn), order_count (số đơn được tính), revenue_vnd (tổng tiền VND, số nguyên).

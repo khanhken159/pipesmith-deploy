@@ -1,0 +1,40 @@
+{
+ "task": "tiktok_ads",
+ "tables": {
+  "tiktok_ad_report_hourly": {
+   "kind": "postgres",
+   "file": "tiktok_ad_report_hourly.parquet"
+  },
+  "tiktok_adgroup_report_hourly": {
+   "kind": "postgres",
+   "file": "tiktok_adgroup_report_hourly.parquet"
+  },
+  "tiktok_campaign_report_hourly": {
+   "kind": "mongodb",
+   "file": "tiktok_campaign_report_hourly.parquet"
+  },
+  "tiktok_adgroup_history": {
+   "kind": "aws_s3",
+   "file": "tiktok_adgroup_history.json"
+  },
+  "tiktok_ad_history": {
+   "kind": "custom_api",
+   "file": "tiktok_ad_history.parquet"
+  },
+  "tiktok_campaign_history": {
+   "kind": "custom_api",
+   "file": "tiktok_campaign_history.parquet"
+  },
+  "tiktok_advertiser": {
+   "kind": "flat_files",
+   "file": "tiktok_advertiser.parquet"
+  }
+ },
+ "models_with_ground_truth": [
+  "tiktok_ads__ad_group_report",
+  "tiktok_ads__ad_report",
+  "tiktok_ads__advertiser_report",
+  "tiktok_ads__campaign_report"
+ ],
+ "origin": "ELT-Bench-Verified (CC BY-SA 4.0), github.com/czanoli/ELT-Bench nhánh elt-bench-pr"
+}

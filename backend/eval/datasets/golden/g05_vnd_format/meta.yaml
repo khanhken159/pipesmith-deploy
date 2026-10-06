@@ -1,0 +1,5 @@
+id: g05_vnd_format
+expect_questions: false
+score: result
+trap: tiền VND dạng 1.075.000
+expected_mode: ELT

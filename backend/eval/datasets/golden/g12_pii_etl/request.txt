@@ -1,0 +1,1 @@
+Bảng customers có số điện thoại và họ tên là thông tin cá nhân, KHÔNG được đưa nguyên bản vào kho dữ liệu. Tính số khách theo thành phố. Bảng đích dim_city_customers, các cột: city, customer_count.

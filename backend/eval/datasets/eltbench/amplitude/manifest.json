@@ -1,0 +1,19 @@
+{
+ "task": "amplitude",
+ "tables": {
+  "event": {
+   "kind": "postgres",
+   "file": "event.parquet"
+  },
+  "event_type": {
+   "kind": "custom_api",
+   "file": "event_type.parquet"
+  }
+ },
+ "models_with_ground_truth": [
+  "amplitude__event_enhanced",
+  "amplitude__sessions",
+  "amplitude__user_enhanced"
+ ],
+ "origin": "ELT-Bench-Verified (CC BY-SA 4.0), github.com/czanoli/ELT-Bench nhánh elt-bench-pr"
+}

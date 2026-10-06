@@ -1,0 +1,5 @@
+id: g12_pii_etl
+expect_questions: false
+score: result
+trap: thông tin cá nhân không được vào kho nguyên bản → mode ETL
+expected_mode: ETL

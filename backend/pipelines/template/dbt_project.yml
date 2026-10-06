@@ -1,0 +1,18 @@
+# Dự án dbt mẫu: mỗi lần chạy được chép vào pipelines/workspaces/<run_id>/
+name: p113_pipeline
+version: "1.0.0"
+config-version: 2
+profile: p113_sandbox
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target"]
+
+models:
+  p113_pipeline:
+    staging:
+      +materialized: ephemeral
+    marts:
+      +materialized: table

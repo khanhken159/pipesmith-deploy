@@ -1,0 +1,1 @@
+Bảng shopee_orders có thể bị lặp dòng (cùng order_id xuất hiện nhiều lần). Mỗi order_id chỉ tính một lần. Tính doanh thu theo ngày của các đơn COMPLETED. Bảng đích fct_daily_revenue, các cột: order_date (DATE, ngày đặt đơn), order_count (số đơn được tính), revenue_vnd (tổng tiền VND, số nguyên).

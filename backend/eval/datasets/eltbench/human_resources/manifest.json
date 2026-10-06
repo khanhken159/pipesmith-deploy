@@ -1,0 +1,22 @@
+{
+ "task": "human_resources",
+ "tables": {
+  "employee": {
+   "kind": "postgres",
+   "file": "employee.parquet"
+  },
+  "position": {
+   "kind": "aws_s3",
+   "file": "position.csv"
+  },
+  "location": {
+   "kind": "flat_files",
+   "file": "location.parquet"
+  }
+ },
+ "models_with_ground_truth": [
+  "locations",
+  "positions"
+ ],
+ "origin": "ELT-Bench-Verified (CC BY-SA 4.0), github.com/czanoli/ELT-Bench nhánh elt-bench-pr"
+}

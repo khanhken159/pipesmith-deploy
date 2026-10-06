@@ -1,0 +1,25 @@
+{
+ "task": "computer_student",
+ "tables": {
+  "taught_by": {
+   "kind": "postgres",
+   "file": "taught_by.parquet"
+  },
+  "person": {
+   "kind": "mongodb",
+   "file": "person.parquet"
+  },
+  "advisedBy": {
+   "kind": "custom_api",
+   "file": "advisedBy.parquet"
+  },
+  "course": {
+   "kind": "flat_files",
+   "file": "course.parquet"
+  }
+ },
+ "models_with_ground_truth": [
+  "courses"
+ ],
+ "origin": "ELT-Bench-Verified (CC BY-SA 4.0), github.com/czanoli/ELT-Bench nhánh elt-bench-pr"
+}

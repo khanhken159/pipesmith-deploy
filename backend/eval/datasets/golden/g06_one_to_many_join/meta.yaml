@@ -1,0 +1,5 @@
+id: g06_one_to_many_join
+expect_questions: false
+score: result
+trap: nối một-nhiều làm nhân đôi doanh thu
+expected_mode: ELT

@@ -1,0 +1,34 @@
+# Phiên bản được ghim theo bản đã cài và chạy test thật (Python 3.11).
+# Airflow KHÔNG nằm ở đây (rất nặng): DAG sinh ra được kiểm tra bằng AST; kiểm tra sâu dùng requirements-airflow.txt.
+
+# API
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
+pydantic==2.13.5
+pydantic-settings==2.15.0
+python-dotenv==1.2.4
+
+# Agent / LLM
+langchain-core==1.6.6
+langchain-openai==1.6.7
+langchain-google-genai==4.4.0
+openai==3.23.0
+langgraph==1.2.12
+langgraph-checkpoint-sqlite==3.1.1
+
+# Dữ liệu / sandbox
+duckdb==1.5.6
+dbt-core==1.12.5
+dbt-duckdb==1.11.0
+sqlglot==30.21.0
+PyYAML==6.0.3
+
+# Terminal
+rich==15.0.0
+
+# Dev tools
+ruff==0.16.10
+pytest==9.1.1
+pytest-asyncio==1.4.0
+pytest-cov==7.1.0
+httpx==0.28.1

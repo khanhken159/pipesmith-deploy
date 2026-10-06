@@ -1,0 +1,31 @@
+{
+ "task": "cs_semester",
+ "tables": {
+  "registration": {
+   "kind": "postgres",
+   "file": "registration.parquet"
+  },
+  "prof": {
+   "kind": "mongodb",
+   "file": "prof.parquet"
+  },
+  "RA": {
+   "kind": "aws_s3",
+   "file": "RA.csv"
+  },
+  "course": {
+   "kind": "custom_api",
+   "file": "course.parquet"
+  },
+  "student": {
+   "kind": "flat_files",
+   "file": "student.json"
+  }
+ },
+ "models_with_ground_truth": [
+  "courses",
+  "professors",
+  "students"
+ ],
+ "origin": "ELT-Bench-Verified (CC BY-SA 4.0), github.com/czanoli/ELT-Bench nhánh elt-bench-pr"
+}

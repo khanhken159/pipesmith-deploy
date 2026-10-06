@@ -1,0 +1,110 @@
+{
+ "task": "lever",
+ "tables": {
+  "application": {
+   "kind": "postgres",
+   "file": "application.parquet"
+  },
+  "feedback_form_field": {
+   "kind": "postgres",
+   "file": "feedback_form_field.parquet"
+  },
+  "offer": {
+   "kind": "postgres",
+   "file": "offer.parquet"
+  },
+  "posting": {
+   "kind": "postgres",
+   "file": "posting.parquet"
+  },
+  "requisition": {
+   "kind": "postgres",
+   "file": "requisition.parquet"
+  },
+  "contact_phone": {
+   "kind": "mongodb",
+   "file": "contact_phone.parquet"
+  },
+  "interview_feedback": {
+   "kind": "mongodb",
+   "file": "interview_feedback.parquet"
+  },
+  "interview_user": {
+   "kind": "aws_s3",
+   "file": "interview_user.csv"
+  },
+  "interview": {
+   "kind": "aws_s3",
+   "file": "interview.json"
+  },
+  "opportunity": {
+   "kind": "aws_s3",
+   "file": "opportunity.csv"
+  },
+  "resume": {
+   "kind": "aws_s3",
+   "file": "resume.csv"
+  },
+  "user": {
+   "kind": "aws_s3",
+   "file": "user.json"
+  },
+  "archive_reason": {
+   "kind": "custom_api",
+   "file": "archive_reason.parquet"
+  },
+  "contact_link": {
+   "kind": "custom_api",
+   "file": "contact_link.parquet"
+  },
+  "interviewer_user": {
+   "kind": "custom_api",
+   "file": "interviewer_user.parquet"
+  },
+  "opportunity_source": {
+   "kind": "custom_api",
+   "file": "opportunity_source.parquet"
+  },
+  "opportunity_stage_history": {
+   "kind": "custom_api",
+   "file": "opportunity_stage_history.parquet"
+  },
+  "posting_interview": {
+   "kind": "custom_api",
+   "file": "posting_interview.parquet"
+  },
+  "requisition_offer": {
+   "kind": "custom_api",
+   "file": "requisition_offer.parquet"
+  },
+  "requisition_posting": {
+   "kind": "custom_api",
+   "file": "requisition_posting.parquet"
+  },
+  "feedback_form": {
+   "kind": "flat_files",
+   "file": "feedback_form.json"
+  },
+  "opportunity_tag": {
+   "kind": "flat_files",
+   "file": "opportunity_tag.json"
+  },
+  "contact_email": {
+   "kind": "flat_files",
+   "file": "contact_email.parquet"
+  },
+  "stage": {
+   "kind": "flat_files",
+   "file": "stage.parquet"
+  },
+  "posting_tag": {
+   "kind": "flat_files",
+   "file": "posting_tag.parquet"
+  }
+ },
+ "models_with_ground_truth": [
+  "lever__posting_enhanced",
+  "lever__requisition_enhanced"
+ ],
+ "origin": "ELT-Bench-Verified (CC BY-SA 4.0), github.com/czanoli/ELT-Bench nhánh elt-bench-pr"
+}

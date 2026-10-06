@@ -1,0 +1,4 @@
+customer_id,email,city,completed_orders
+C1,a.new@example.com,Ha Noi,2
+C2,b@example.com,Da Nang,0
+C3,c@example.com,Hue,0

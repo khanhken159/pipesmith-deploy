@@ -1,0 +1,5 @@
+id: g04_mixed_dates
+expect_questions: false
+score: result
+trap: ngày nhiều định dạng
+expected_mode: ELT

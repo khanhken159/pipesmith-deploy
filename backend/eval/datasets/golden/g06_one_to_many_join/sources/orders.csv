@@ -1,0 +1,5 @@
+order_id,order_date,status,total_vnd
+O1,2026-09-01,completed,300000
+O2,2026-09-01,completed,500000
+O3,2026-09-02,completed,200000
+O4,2026-09-02,cancelled,900000

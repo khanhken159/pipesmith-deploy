@@ -1,0 +1,41 @@
+{
+ "task": "twilio",
+ "tables": {
+  "message": {
+   "kind": "postgres",
+   "file": "message.parquet"
+  },
+  "call": {
+   "kind": "mongodb",
+   "file": "call.parquet"
+  },
+  "account_history": {
+   "kind": "aws_s3",
+   "file": "account_history.json"
+  },
+  "incoming_phone_number": {
+   "kind": "aws_s3",
+   "file": "incoming_phone_number.json"
+  },
+  "messaging_service": {
+   "kind": "custom_api",
+   "file": "messaging_service.parquet"
+  },
+  "outgoing_caller_id": {
+   "kind": "custom_api",
+   "file": "outgoing_caller_id.parquet"
+  },
+  "usage_record": {
+   "kind": "flat_files",
+   "file": "usage_record.json"
+  },
+  "address": {
+   "kind": "flat_files",
+   "file": "address.parquet"
+  }
+ },
+ "models_with_ground_truth": [
+  "twilio__account_overview"
+ ],
+ "origin": "ELT-Bench-Verified (CC BY-SA 4.0), github.com/czanoli/ELT-Bench nhánh elt-bench-pr"
+}

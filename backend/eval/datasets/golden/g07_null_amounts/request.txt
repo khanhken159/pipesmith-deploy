@@ -1,0 +1,1 @@
+Tính doanh thu theo ngày từ website_orders, chỉ đơn status paid. Đơn thiếu số tiền (amount_vnd rỗng) vẫn được đếm vào số đơn nhưng doanh thu coi là 0. Bảng đích fct_daily_revenue, các cột: order_date (DATE, ngày đặt đơn), order_count (số đơn được tính), revenue_vnd (tổng tiền VND, số nguyên).

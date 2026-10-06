@@ -1,0 +1,5 @@
+id: g09_customer_dimension
+expect_questions: false
+score: result
+trap: bảng chiều, lấy bản ghi mới nhất, khách không có đơn
+expected_mode: ELT

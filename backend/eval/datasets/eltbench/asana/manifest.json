@@ -1,0 +1,57 @@
+{
+ "task": "asana",
+ "tables": {
+  "tag": {
+   "kind": "postgres",
+   "file": "tag.parquet"
+  },
+  "task": {
+   "kind": "postgres",
+   "file": "task.parquet"
+  },
+  "section": {
+   "kind": "mongodb",
+   "file": "section.parquet"
+  },
+  "team": {
+   "kind": "mongodb",
+   "file": "team.parquet"
+  },
+  "user": {
+   "kind": "mongodb",
+   "file": "user.parquet"
+  },
+  "task_section": {
+   "kind": "aws_s3",
+   "file": "task_section.csv"
+  },
+  "task_tag": {
+   "kind": "aws_s3",
+   "file": "task_tag.json"
+  },
+  "project": {
+   "kind": "custom_api",
+   "file": "project.parquet"
+  },
+  "story": {
+   "kind": "custom_api",
+   "file": "story.parquet"
+  },
+  "task_follower": {
+   "kind": "flat_files",
+   "file": "task_follower.json"
+  },
+  "project_task": {
+   "kind": "flat_files",
+   "file": "project_task.parquet"
+  }
+ },
+ "models_with_ground_truth": [
+  "asana__project",
+  "asana__tag",
+  "asana__task",
+  "asana__team",
+  "asana__user"
+ ],
+ "origin": "ELT-Bench-Verified (CC BY-SA 4.0), github.com/czanoli/ELT-Bench nhánh elt-bench-pr"
+}

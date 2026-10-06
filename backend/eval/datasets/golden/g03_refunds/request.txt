@@ -1,0 +1,1 @@
+Tính doanh thu thuần theo ngày từ website_orders: chỉ tính đơn có status paid, KHÔNG tính đơn refunded (đã hoàn tiền). Bảng đích fct_daily_revenue, các cột: order_date (DATE, ngày đặt đơn), order_count (số đơn được tính), revenue_vnd (tổng tiền VND, số nguyên).

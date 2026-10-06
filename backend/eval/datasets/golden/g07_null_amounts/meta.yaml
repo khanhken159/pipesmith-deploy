@@ -1,0 +1,5 @@
+id: g07_null_amounts
+expect_questions: false
+score: result
+trap: số tiền rỗng
+expected_mode: ELT

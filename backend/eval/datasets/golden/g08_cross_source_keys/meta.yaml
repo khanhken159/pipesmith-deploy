@@ -1,0 +1,5 @@
+id: g08_cross_source_keys
+expect_questions: false
+score: result
+trap: khóa trùng giữa các nguồn
+expected_mode: ELT

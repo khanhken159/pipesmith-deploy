@@ -1,0 +1,1 @@
+Từ bảng orders, tính doanh thu theo tháng và kênh bán, chỉ đơn status completed. Bảng đích fct_monthly_channel_revenue, các cột: month (DATE, ngày đầu tháng), channel, order_count, revenue_vnd.
