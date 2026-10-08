@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, Empty } from "../ui";
+import type { AnsweredQuestion, Spec } from "@/lib/types";
+
 import { PlanSteps } from "./PlanReview";
-import { useRun } from "./RunContext";
 
 function List({ items }: { items?: string[] }) {
   if (!items?.length) return <span className="muted">—</span>;
@@ -15,20 +15,10 @@ function List({ items }: { items?: string[] }) {
   );
 }
 
-export function SpecCard() {
-  const { detail } = useRun();
-  if (!detail) return null;
-  const { spec } = detail;
-  const answered = detail.answered ?? [];
-  if (!spec.target) {
-    return (
-      <Card title="Đặc tả pipeline">
-        <Empty>Agent chưa lập xong kế hoạch.</Empty>
-      </Card>
-    );
-  }
+/** Đặc tả đầy đủ (đã duyệt): bảng đích, lý do ELT/ETL, grain, chỉ số, lọc, giả định, câu J1, kế hoạch, cột đầu ra. */
+export function SpecBody({ spec, answered }: { spec: Spec; answered: AnsweredQuestion[] }) {
   return (
-    <Card title="Đặc tả pipeline" actions={<span className="badge info">{spec.mode}</span>}>
+    <>
       <dl className="kv">
         <dt>Bảng đích</dt>
         <dd className="mono">{spec.target}</dd>
@@ -84,6 +74,6 @@ export function SpecCard() {
           </table>
         </div>
       )}
-    </Card>
+    </>
   );
 }

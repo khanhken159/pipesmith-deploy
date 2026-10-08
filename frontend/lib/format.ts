@@ -51,3 +51,24 @@ export function languageOf(path: string): string {
   if (path.endsWith(".yml") || path.endsWith(".yaml")) return "yaml";
   return "plaintext";
 }
+
+/** Thời gian tương đối: "vừa xong", "5 phút trước", "2 giờ trước", "hôm qua", hoặc ngày. */
+export function formatAgo(iso: string, now: number): string {
+  const time = new Date(iso).getTime();
+  if (Number.isNaN(time) || !now) return formatTime(iso);
+  const minutes = Math.max(0, Math.round((now - time) / 60000));
+  if (minutes < 1) return "vừa xong";
+  if (minutes < 60) return `${minutes} phút trước`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours} giờ trước`;
+  const days = Math.round(hours / 24);
+  return days === 1 ? "hôm qua" : days < 7 ? `${days} ngày trước` : new Date(iso).toLocaleDateString("vi-VN");
+}
+
+/** Giờ:phút của một mốc thời gian (cho dòng hoạt động). */
+export function formatClock(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime())
+    ? iso
+    : date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
+}

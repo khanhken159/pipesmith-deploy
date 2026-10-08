@@ -41,7 +41,11 @@ export function DecisionForm() {
         {!waiting && (
           <div className={detail.record.status === "approved" ? "alert ok" : "alert info"}>
             <span>
-              {detail.busy ? "Agent đang chạy, chờ một chút." : `Trạng thái: ${STATUS_LABELS[detail.record.status]}.`}
+              {detail.busy
+                ? "Agent đang chạy, chờ một chút."
+                : detail.record.status === "approved"
+                  ? "Đã duyệt. Tải gói code (.zip) ở góc trên để mở Pull Request."
+                  : `Trạng thái: ${STATUS_LABELS[detail.record.status]}.`}
             </span>
           </div>
         )}
@@ -64,7 +68,7 @@ export function DecisionForm() {
             disabled={!waiting || sending || !note.trim()}
             onClick={() => decide("reject")}
           >
-            Từ chối, yêu cầu sửa
+            Từ chối và ghi chú
           </button>
           <button type="button" className="btn ok" disabled={!waiting || sending} onClick={() => decide("approve")}>
             Duyệt

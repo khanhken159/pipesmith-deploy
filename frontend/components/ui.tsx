@@ -73,3 +73,33 @@ export function PassMark({ passed }: { passed: boolean | null }) {
     </span>
   );
 }
+
+/** Thẻ một bước của luồng (bố cục Studio): số thứ tự tròn, tiêu đề, nhãn bên phải; `state` đổi màu số. */
+export function StepCard({
+  step,
+  title,
+  aside,
+  state = "idle",
+  children,
+}: {
+  step: ReactNode;
+  title: ReactNode;
+  aside?: ReactNode;
+  state?: "idle" | "active" | "done" | "waiting";
+  children: ReactNode;
+}) {
+  return (
+    <section className="card step-card" data-state={state}>
+      <header className="step-head">
+        <div className="step-title">
+          <span className="step-num" aria-hidden>
+            {step}
+          </span>
+          <h2>{title}</h2>
+        </div>
+        {aside}
+      </header>
+      <div className="step-body">{children}</div>
+    </section>
+  );
+}

@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { apiGet, messageOf } from "./api";
+import { apiGetText, messageOf } from "./api";
 
 export interface Polled<T> {
   data: T | null;
   error: string;
   loading: boolean;
+  /** Date.now() lúc nhận `data` (0 = chưa có): để đồng hồ phía trình duyệt chạy tiếp từ số máy chủ trả. */
+  fetchedAt: number;
   refresh: () => Promise<void>;
 }
 
@@ -16,11 +18,19 @@ export function usePoll<T>(path: string | null, intervalMs: number | null): Poll
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [fetchedAt, setFetchedAt] = useState(0);
+  const lastText = useRef("");
 
   const refresh = useCallback(async () => {
     if (!path) return;
     try {
-      setData(await apiGet<T>(path));
+      const text = await apiGetText(path);
+      if (text !== lastText.current) {
+        // chỉ cập nhật khi dữ liệu đổi: hỏi định kỳ không làm vẽ lại cả trang
+        lastText.current = text;
+        setData(JSON.parse(text) as T);
+        setFetchedAt(Date.now());
+      }
       setError("");
     } catch (exc) {
       setError(messageOf(exc));
@@ -38,5 +48,5 @@ export function usePoll<T>(path: string | null, intervalMs: number | null): Poll
     };
   }, [refresh, intervalMs]);
 
-  return { data, error, loading, refresh };
+  return { data, error, loading, fetchedAt, refresh };
 }

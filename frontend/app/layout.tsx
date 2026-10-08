@@ -3,7 +3,9 @@ import type { ReactNode } from "react";
 
 import { AppProvider } from "@/components/AppContext";
 import { AppShell } from "@/components/AppShell";
+import { mono, sans } from "@/lib/fonts";
 
+import "../styles/tokens.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,11 +15,11 @@ export const metadata: Metadata = {
 };
 
 // Áp dụng giao diện sáng/tối đã lưu trước khi vẽ trang (tránh nháy màu).
-const THEME_SCRIPT = `try{var t=localStorage.getItem("p113.theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;if(t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`;
+const THEME_SCRIPT = `try{var t=localStorage.getItem("p113.theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="vi" suppressHydrationWarning className="font-sans">
+    <html lang="vi" className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>

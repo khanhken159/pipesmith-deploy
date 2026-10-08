@@ -2,7 +2,9 @@
 
 import dynamic from "next/dynamic";
 
+import { mono } from "@/lib/fonts";
 import { languageOf } from "@/lib/format";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 
 import { useApp } from "./AppContext";
 import { Loading } from "./ui";
@@ -17,6 +19,7 @@ const OPTIONS = {
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
   fontSize: 13,
+  fontFamily: mono.style.fontFamily,
   automaticLayout: true,
   wordWrap: "on" as const,
 };
@@ -30,6 +33,7 @@ interface CodeDiffProps {
 /** So sánh hai bản; không có bản trước (vòng duyệt đầu) thì hiện code mới ở chế độ chỉ đọc. */
 export function CodeDiff({ path, original, modified }: CodeDiffProps) {
   const { dark } = useApp();
+  const narrow = useMediaQuery("(max-width: 900px)"); // màn hẹp: xem một cột
   const common = { height: "56vh", language: languageOf(path), theme: dark ? "vs-dark" : "light", loading: loading() };
   return (
     <div className="diff-box" aria-label={`Code ${path}`}>
@@ -38,7 +42,7 @@ export function CodeDiff({ path, original, modified }: CodeDiffProps) {
           {...common}
           original={original}
           modified={modified}
-          options={{ ...OPTIONS, originalEditable: false, renderSideBySide: true }}
+          options={{ ...OPTIONS, originalEditable: false, renderSideBySide: !narrow }}
         />
       ) : (
         <Editor {...common} value={modified} options={OPTIONS} />

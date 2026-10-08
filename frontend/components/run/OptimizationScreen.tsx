@@ -65,9 +65,9 @@ function Findings({ report }: { report: Optimization }) {
       {report.explanation && (
         <div style={{ marginTop: 12 }}>
           <h3>
-            LLM giải thích <span className="badge warn">chưa kiểm chứng</span>
+            LLM giải thích <span className="badge muted">chưa kiểm chứng</span>
           </h3>
-          <p>{report.explanation}</p>
+          <p className="claimed-box">{report.explanation}</p>
         </div>
       )}
       {report.warehouse_hints && report.warehouse_hints.length > 0 && (

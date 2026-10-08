@@ -7,6 +7,7 @@ import { downloadUrl } from "@/lib/api";
 import { formatTime } from "@/lib/format";
 
 import { ErrorBox, Loading, StatusBadge } from "../ui";
+import { PipelineTrack } from "./PipelineTrack";
 import { useRun } from "./RunContext";
 
 function Tabs({ runId }: { runId: string }) {
@@ -47,7 +48,7 @@ export function RunHeader() {
       <div className="run-title">
         <div>
           <div className="row">
-            <Link href="/" className="small">
+            <Link href="/runs" className="small">
               ← Lần chạy
             </Link>
             <span className="muted small mono">{record.id}</span>
@@ -56,13 +57,11 @@ export function RunHeader() {
           <div className="row muted small">
             <StatusBadge status={record.status} />
             {detail.busy && <span className="badge info">agent đang chạy…</span>}
-            <span>Người tạo: {record.requester}</span>
+            <span>{record.requester}</span>
             <span>·</span>
-            <span>
-              {record.provider} / {record.model}
-            </span>
+            <span title={record.model}>{record.provider}</span>
             <span>·</span>
-            <span>Tạo lúc {formatTime(record.created_at)}</span>
+            <span>{formatTime(record.created_at)}</span>
           </div>
         </div>
         {hasCode && (
@@ -71,6 +70,7 @@ export function RunHeader() {
           </a>
         )}
       </div>
+      <PipelineTrack />
       {error && <ErrorBox message={`Mất kết nối, đang thử lại… (${error})`} />}
       <Tabs runId={runId} />
     </div>

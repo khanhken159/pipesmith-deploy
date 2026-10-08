@@ -44,6 +44,21 @@ export interface StepEvent {
   detail: string;
   seconds: number;
   tokens: number;
+  finished_at?: number; // epoch giây (máy chủ); chỉ có với bước chạy trong phiên máy chủ hiện tại
+}
+
+/** Node đang chạy (sự kiện "bắt đầu node" thật của LangGraph). */
+export interface CurrentNode {
+  node: string;
+  label: string;
+  stage: string | null;
+  started_at: number;
+  elapsed_s: number;
+  /** Trung vị thời gian ĐO THẬT các lần trước; null khi chưa đủ mẫu (không ước lượng). */
+  typical_s: number | null;
+  samples: number;
+  /** Mô tả việc đang làm, ghép từ state thật — KHÔNG phải log đo. */
+  activity: string[];
 }
 
 export interface ClarifyQuestion {
@@ -82,6 +97,7 @@ export interface OutputColumn {
 
 export interface Spec {
   target?: string;
+  sources?: { name: string; kind: string }[];
   mode?: string;
   mode_reason?: string;
   grain?: string[];
@@ -156,6 +172,38 @@ export interface RunDetail {
   sandbox: Sandbox;
   code_notes: string[];
   test_notes: string[];
+  stages?: Stage[];
+  usage?: UsageReport;
+  current?: CurrentNode | null;
+}
+
+export type StageState = "waiting" | "running" | "passed" | "failed" | "human";
+
+/** Một nút E/V/J trên đường ống (src/agents/stages.py). */
+export interface Stage {
+  id: string;
+  code: string;
+  label: string;
+  kind: "E" | "V" | "J";
+  state: StageState;
+  detail: string;
+}
+
+export interface UsageRow {
+  task: string;
+  calls: number;
+  input_tokens: number;
+  output_tokens: number;
+  cached_tokens: number;
+  cost_usd: number;
+  seconds: number;
+}
+
+/** Token/chi phí/thời gian LLM theo node (src/services/cost.usage_breakdown). */
+export interface UsageReport {
+  rows: UsageRow[];
+  cache_hit_rate: number | null;
+  simulated: boolean;
 }
 
 export interface RunFiles {

@@ -79,7 +79,7 @@ export function PlanReview({ pending }: { pending: PlanPending }) {
       <div className="grid-2">
         <div>
           <h3 className="row">
-            Các bước agent sẽ làm <span className="badge warn">LLM lập — bạn kiểm tra</span>
+            Các bước agent sẽ làm <span className="badge muted">LLM lập, bạn kiểm tra</span>
           </h3>
           <PlanSteps steps={pending.steps} />
         </div>

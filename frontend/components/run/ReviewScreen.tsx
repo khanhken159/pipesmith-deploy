@@ -9,6 +9,7 @@ import { CodeDiff } from "../CodeDiff";
 import { Card, Empty, ErrorBox, Loading } from "../ui";
 import { DecisionForm } from "./DecisionForm";
 import { EvidencePanel } from "./EvidencePanel";
+import { CostFigures, OptimizationFigures, ScaleFigures } from "./ReviewFigures";
 import { useRun } from "./RunContext";
 
 interface FileGroup {
@@ -94,7 +95,12 @@ export function ReviewScreen() {
         {files.data && <DiffCard files={files.data} />}
       </Card>
       <div className="grid-2">
-        <EvidencePanel />
+        <div className="stack">
+          <EvidencePanel />
+          {detail && <OptimizationFigures report={detail.optimization} />}
+          <ScaleFigures />
+          <CostFigures />
+        </div>
         <div className="decision">
           <DecisionForm />
         </div>

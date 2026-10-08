@@ -87,8 +87,10 @@ export function ResultCard() {
       )}
       {codeNotes.length > 0 && (
         <div style={{ marginTop: 12 }}>
-          <h3>Agent mô tả code (LLM nói)</h3>
-          <ul className="plain muted">
+          <h3>
+            Agent mô tả code <span className="badge muted">LLM nói, chưa kiểm chứng</span>
+          </h3>
+          <ul className="claimed-list">
             {codeNotes.map((note) => (
               <li key={note}>{note}</li>
             ))}

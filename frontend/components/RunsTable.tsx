@@ -4,16 +4,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { formatPct, formatTime, formatUsd } from "@/lib/format";
-import type { RunRecord, RunStatus } from "@/lib/types";
-import { usePoll } from "@/lib/usePoll";
+import type { RunRecord } from "@/lib/types";
 
-import { Card, Empty, ErrorBox, Loading, StatusBadge } from "./ui";
-
-const NEEDS_ACTION: RunStatus[] = ["waiting_clarification", "waiting_plan_review", "waiting_review", "waiting_rescue"];
+import { useApp } from "./AppContext";
+import { NEEDS_ACTION, runHref } from "./NotificationBell";
+import { StatusPill } from "./StatusPill";
+import { Card, Empty, ErrorBox, Loading } from "./ui";
 
 function RunRow({ run }: { run: RunRecord }) {
   const router = useRouter();
-  const href = run.status === "waiting_review" ? `/runs/${run.id}/review` : `/runs/${run.id}`;
+  const href = runHref(run);
   return (
     <tr className="clickable" onClick={() => router.push(href)}>
       <td>
@@ -25,7 +25,7 @@ function RunRow({ run }: { run: RunRecord }) {
         </small>
       </td>
       <td>
-        <StatusBadge status={run.status} />
+        <StatusPill status={run.status} />
       </td>
       <td className="mono">{run.summary.target ?? "—"}</td>
       <td>{run.summary.optimization === "applied" ? `+${formatPct(run.summary.improvement_pct)}` : "—"}</td>
@@ -36,7 +36,8 @@ function RunRow({ run }: { run: RunRecord }) {
 }
 
 export function RunsTable() {
-  const { data, error, loading, refresh } = usePoll<RunRecord[]>("/runs?limit=50", 5000);
+  const { runs: data, runsError: error, refreshRuns: refresh } = useApp();
+  const loading = !data && !error;
   const waiting = data?.filter((r) => NEEDS_ACTION.includes(r.status)).length ?? 0;
   return (
     <Card
