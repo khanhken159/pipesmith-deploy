@@ -30,6 +30,9 @@
   --layer-source: light-dark(#54627a, #9baac2);
   --layer-staging: light-dark(#1b4fd8, #6c95ff);
   --layer-mart: light-dark(#11795a, #3cc796);
+  /* Nhãn "Code AI sinh" ở màn hồ sơ dữ liệu (bảng staging/mart do code AI viết) */
+  --ai: light-dark(#4338ca, #a5a8ff);
+  --ai-soft: light-dark(#e9e8fb, #1e2050);
   --shadow-color: light-dark(rgb(14 26 43 / 8%), rgb(0 0 0 / 45%));
 
   /* Giao diện Studio (bố cục theo mẫu ai-agent-studio): nền gradient, khung kính, màu nhấn, console tối */
@@ -59,6 +62,42 @@
   --rail: light-dark(#0f1b2d, #e8eef8);
   --rail-ink: light-dark(#ffffff, #0b1524);
   --shadow-lg: 0 24px 48px -12px var(--shadow-color), 0 2px 6px var(--shadow-color);
+
+  /* Nút "mềm nổi" + ô chọn bóng (mẫu bảng chọn chủ đề): mặt trắng sáng dần xuống, viền mảnh, ánh sáng mép trên */
+  --btn-top: light-dark(#ffffff, #1d2c47);
+  --btn-bottom: light-dark(#eef2f8, #15233b);
+  --btn-edge: light-dark(#dde4ee, #2b3f5e);
+  --btn-shine: light-dark(rgb(255 255 255 / 95%), rgb(255 255 255 / 9%));
+  --primary-hi: light-dark(#3a64e0, #8eacff);
+  --ok-hi: light-dark(#13835f, #5fd8ab);
+  --check-a: light-dark(#5b8cff, #8eacff);
+  --check-b: light-dark(#1b4fd8, #4f7cf0);
+  --check-ink: light-dark(#ffffff, #09121f);
+  --check-off: light-dark(#f3f5f9, #15233b);
+  --check-edge: light-dark(#cfd7e4, #34496b);
+
+  /* Trang đăng nhập "kính trên đồng cỏ" (mẫu bạn gửi): trời, đồi xa → gần, thẻ kính tông xanh lá */
+  --meadow-sky-top: light-dark(#a9c9e4, #0a1424);
+  --meadow-sky-low: light-dark(#e9f0e4, #1a2638);
+  --meadow-sun: light-dark(#fff6dc, #3b4a6b);
+  --hill-far: light-dark(#a9c39a, #1d2e33);
+  --hill-mid: light-dark(#7fa765, #172a25);
+  --hill-trees: light-dark(#3f6a34, #0f1f1a);
+  --hill-near: light-dark(#689a47, #12241c);
+  --hill-front: light-dark(#4f8233, #0c1a13);
+  --grass: light-dark(#86b85a, #24402c);
+  --login-glass: light-dark(#2e4a25, #0d1a14); /* màu kính pha lên nền */
+  --login-glass-solid: light-dark(#4a6a3c, #18291f); /* nền thực tế sau lớp kính (kiểm tương phản) */
+  --login-edge: light-dark(rgb(255 255 255 / 75%), rgb(255 255 255 / 28%));
+  --login-ink: light-dark(#ffffff, #eef5ec);
+  --login-muted: light-dark(#eaf3e3, #b9cbb8);
+  --login-field: light-dark(rgb(255 255 255 / 16%), rgb(255 255 255 / 7%));
+  --login-cta-a: light-dark(#cfe39a, #9fcf6a);
+  --login-cta-b: light-dark(#3f7a1f, #3d7a26);
+  --login-cta-solid: light-dark(#2f6516, #2d5f1b); /* nền tối nhất của nút (kiểm tương phản chữ) */
+  --login-cta-ink: light-dark(#ffffff, #ffffff);
+  --login-error: light-dark(#7a1020, #ffd5da);
+  --login-error-bg: light-dark(#ffe3e7, #4a1420);
 
   --shadow: 0 1px 2px var(--shadow-color), 0 2px 6px var(--shadow-color);
   --radius: 16px;

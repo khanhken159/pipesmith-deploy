@@ -13,6 +13,7 @@ atexit.register(shutil.rmtree, _TMP, ignore_errors=True)  # dọn dữ liệu te
 os.environ.update(
     {
         "APP_ENV": "test",
+        "CORS_ORIGINS": "https://test",
         "LLM_PROVIDER": "mock",
         "OPENAI_API_KEY": "",
         "GOOGLE_API_KEY": "",  # .env có thể có khóa thật: test không bao giờ gọi Gemini thật
@@ -48,13 +49,118 @@ def seeded_sources() -> Path:
 
 
 @pytest_asyncio.fixture
-async def client():
-    """HTTP client gọi thẳng ứng dụng FastAPI (không mở cổng)."""
+async def client_factory(auth_database):
+    """Create in-process API clients for the isolated auth database."""
     from src.main import app
 
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        yield ac
+    clients: list[AsyncClient] = []
+
+    async def create() -> AsyncClient:
+        ac = AsyncClient(
+            transport=transport,
+            base_url="https://test",
+            headers={"X-Requested-With": "p113-web"},
+        )
+        clients.append(ac)
+        return ac
+
+    yield create
+    for ac in clients:
+        await ac.aclose()
+
+
+@pytest.fixture
+def auth_database(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Use a new SQLite auth database for each API test; never touch external or persistent data."""
+    from sqlalchemy import create_engine
+    from sqlalchemy.pool import NullPool
+
+    from src.config import get_settings
+    from src.services import auth
+
+    monkeypatch.setenv("APP_ENV", "test")
+    database_url = f"sqlite+pysqlite:///{(tmp_path / 'auth.db').as_posix()}"
+    monkeypatch.setenv("DATABASE_URL", database_url)
+    monkeypatch.setenv("MIGRATION_DATABASE_URL", f"sqlite+pysqlite:///{(tmp_path / 'migration.db').as_posix()}")
+    monkeypatch.setenv("SESSION_SECRET", "test-only-secret-with-at-least-32-characters")
+    monkeypatch.setenv("SESSION_COOKIE_SECURE", "true")
+    monkeypatch.setenv("SESSION_COOKIE_SAMESITE", "lax")
+    monkeypatch.setenv("CORS_ORIGINS", "https://test")
+    get_settings.cache_clear()
+    engine = create_engine(database_url, connect_args={"check_same_thread": False}, poolclass=NullPool)
+    monkeypatch.setattr(auth, "get_engine", lambda: engine)
+    auth.Base.metadata.create_all(engine)
+    yield
+    engine.dispose()
+    get_settings.cache_clear()
+
+
+@pytest_asyncio.fixture
+async def anon(client_factory):
+    """Unauthenticated client for session and fail-closed checks."""
+    return await client_factory()
+
+
+@pytest_asyncio.fixture
+async def client(client_factory):
+    """Signed-in Engineer client for existing business API regression tests."""
+    from src.services import auth
+
+    username = "test_engineer"
+    password = "strong-test-password-123"
+    auth.create_user(username, "Test Engineer", "engineer", password)
+    ac = await client_factory()
+    response = await ac.post(
+        "/api/v1/auth/login",
+        json={"username": username, "password": password},
+        headers={"Origin": "https://test"},
+    )
+    assert response.status_code == 200
+    return ac
+
+
+@pytest_asyncio.fixture
+async def login(client_factory):
+    """Create and sign in an isolated role account; returned clients close at test teardown."""
+    from src.services import auth
+
+    serial = 0
+
+    async def sign_in(role: str, username: str | None = None) -> AsyncClient:
+        nonlocal serial
+        serial += 1
+        name = username or f"test_{role}_{serial}"
+        password = "strong-test-password-123"
+        auth.create_user(name, f"Test {role}", role, password)
+        ac = await client_factory()
+        response = await ac.post(
+            "/api/v1/auth/login",
+            json={"username": name, "password": password},
+            headers={"Origin": "https://test"},
+        )
+        assert response.status_code == 200
+        ac.username = name
+        return ac
+
+    return sign_in
+
+
+@pytest.fixture
+def make_user(auth_database):
+    """Create a user directly in this test's isolated database."""
+    from src.services import auth
+
+    serial = 0
+
+    def create(role: str, username: str | None = None, password: str = "strong-test-password-123"):
+        nonlocal serial
+        serial += 1
+        name = username or f"make_{role}_{serial}"
+        auth.create_user(name, f"Test {role}", role, password)
+        return name, password
+
+    return create
 
 
 @pytest.fixture

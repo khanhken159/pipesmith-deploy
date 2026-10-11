@@ -1,83 +1,47 @@
-# PipeSmith / P-113 — deploy copy
+# PipeSmith / P-113
 
-This is a clean, standalone deployment copy of PipeSmith. The source is split into two applications:
+This repository is the deployment source of truth for the existing Agent pipeline:
 
-- frontend/: Next.js, deployed on Vercel with Root Directory = frontend.
-- backend/: FastAPI and the Agent/pipeline code, deployed on Render with Root Directory = backend.
+- `frontend/`: Next.js, deployed on Vercel.
+- `backend/`: FastAPI and the existing Agent pipeline, deployed on Render.
+- `.github/workflows/`: current CI workflows.
 
-This copy does not include the old Git history. Do not commit a .env file; use the .env.example files as templates.
+Authentication adds PostgreSQL for accounts, server-side sessions, and the admin audit log. Run Store, LangGraph checkpoints, Error Book, workspaces, artifacts, source files, and DuckDB sandbox keep their existing storage paths and formats. The Agent runner and review policy remain the deployment baseline.
 
 ## Run locally
 
-Terminal 1 — backend:
+Install the backend requirements from `backend/`, copy `backend/.env.example` to `.env`, then start FastAPI:
 
-    cd backend
-    python -m venv .venv
-    # Windows: .venv\Scripts\activate
-    # macOS/Linux: source .venv/bin/activate
-    pip install -r requirements.txt
-    # PowerShell
-    Copy-Item .env.example .env
-    # macOS/Linux
-    cp .env.example .env
-    python -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env
+python -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-Terminal 2 — frontend:
+Authentication requires `DATABASE_URL` and a `SESSION_SECRET` of at least 32 characters; without them the app fails closed. Run the auth migration manually against a dedicated database, then create an initial Admin using `python -m src.cli users create --username quantri --name "Quản trị" --role admin`. The CLI reads the password without echoing it.
 
-    cd frontend
-    npm ci
-    # PowerShell
-    Copy-Item .env.example .env.local
-    # macOS/Linux
-    cp .env.example .env.local
-    npm run dev
+Start the frontend in a second terminal:
 
-The frontend defaults to http://localhost:8000; change the API URL with NEXT_PUBLIC_API_URL.
+```powershell
+cd frontend
+npm ci
+Copy-Item .env.example .env.local
+npm run dev
+```
 
-## Deploy the backend on Render
+Local frontend requests use `NEXT_PUBLIC_API_URL=http://localhost:8000`. The backend example config allows that origin in development.
 
-Create a Web Service from the new repository:
+## Deploy
 
-- Root Directory: backend
-- Runtime: Docker (uses backend/Dockerfile) or Python
-- Python Build Command: pip install -r requirements.txt
-- Python Start Command: python -m uvicorn src.main:app --host 0.0.0.0 --port $PORT
-- Health check path: /health
+Keep the current Vercel + Render structure and existing Agent/LLM variables. On Render, set the application PostgreSQL URL, `APP_ENV=production`, `SESSION_SECRET`, `SESSION_COOKIE_SECURE=true`, `SESSION_COOKIE_SAMESITE=lax`, and the exact Vercel origin in `CORS_ORIGINS`. Run Alembic manually with a separate `MIGRATION_DATABASE_URL` only after a backup and explicit deployment approval; the backend does not auto-migrate.
 
-Set these environment variables on Render:
+On Vercel, set `BACKEND_URL` to the Render origin and `NEXT_PUBLIC_API_URL=/` before build. Browser requests then use `/api/v1/*` on the Vercel origin and Next.js rewrites proxy them to Render. Do not put backend secrets in frontend variables.
 
-    APP_ENV=production
-    LLM_PROVIDER=mock
-    CORS_ORIGINS=https://<frontend>.vercel.app
-
-If using a real LLM provider, set OPENAI_API_KEY on Render only. Never put it in the frontend, Git, or CI.
-
-## Deploy the frontend on Vercel
-
-Import the same new repository:
-
-- Root Directory: frontend
-- Framework: Next.js
-- Build Command: npm run build
-- Output Directory: leave the default blank
-
-Set this environment variable:
-
-    NEXT_PUBLIC_API_URL=https://<backend>.onrender.com
-
-After Vercel gives you a domain, set CORS_ORIGINS on Render to that exact origin.
+See [backend/docs/deploy-auth.md](backend/docs/deploy-auth.md) for PostgreSQL roles, migrations, staging checks, Vercel proxy limits, Render filesystem persistence, and rollback steps.
 
 ## CI
 
-.github/workflows/ci.yml runs Ruff and pytest from backend/, and runs the Next.js lint, format, typecheck, and build steps from frontend/. The build job only runs after backend tests and frontend checks pass.
-
-## Create the new Git repository
-
-From the clean deploy root:
-
-    git init
-    git add .
-    git commit -m "Initial deploy"
-    git branch -M main
-    git remote add origin <new-repository-url>
-    git push -u origin main
+`.github/workflows/ci.yml` runs Ruff and pytest from `backend/`, frontend lint/format/typecheck/build, then builds both Docker images without pushing or deploying.

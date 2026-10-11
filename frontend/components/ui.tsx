@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import { STATUS_LABELS, STATUS_TONES } from "@/lib/format";
 import type { RunStatus } from "@/lib/types";
 
+import { CheckIcon } from "./icons";
+
 export function Loading({ text = "Đang tải…" }: { text?: string }) {
   return (
     <div className="loading" role="status" aria-live="polite">
@@ -101,5 +103,28 @@ export function StepCard({
       </header>
       <div className="step-body">{children}</div>
     </section>
+  );
+}
+
+/** Ô chọn kiểu "nút bóng" (ô vuông bo tròn, tô gradient khi chọn): vẫn là checkbox thật, bàn phím/đọc màn hình dùng được. */
+export function Checkbox({
+  checked,
+  onChange,
+  disabled,
+  children,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <label className="check" data-disabled={disabled || undefined}>
+      <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
+      <span className="check-box" aria-hidden>
+        <CheckIcon size={14} strokeWidth={3} />
+      </span>
+      <span className="check-label">{children}</span>
+    </label>
   );
 }

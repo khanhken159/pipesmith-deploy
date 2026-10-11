@@ -4,17 +4,32 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { STATUS_LABELS } from "@/lib/format";
-import type { RunRecord, RunStatus } from "@/lib/types";
+import type { CurrentUser, RunRecord, RunStatus } from "@/lib/types";
 
 import { useApp } from "./AppContext";
 import { BellIcon } from "./icons";
 
-export const NEEDS_ACTION: RunStatus[] = [
-  "waiting_clarification",
-  "waiting_plan_review",
-  "waiting_review",
-  "waiting_rescue",
-];
+/** Bước chờ Engineer (người tạo yêu cầu) và bước chờ Reviewer. */
+export const ENGINEER_ACTION: RunStatus[] = ["waiting_clarification", "waiting_plan_review", "waiting_rescue"];
+export const REVIEWER_ACTION: RunStatus[] = ["waiting_review"];
+export const NEEDS_ACTION: RunStatus[] = [...ENGINEER_ACTION, ...REVIEWER_ACTION];
+
+/** Lần chạy đang chờ CHÍNH người này theo vai trò: Engineer — yêu cầu của mình; Reviewer — hàng đợi duyệt. */
+export function waitingFor(
+  user: CurrentUser | null,
+  runs: RunRecord[] | null,
+  requireSeparateReviewer = true,
+): RunRecord[] {
+  const list = runs ?? [];
+  if (user?.role === "engineer")
+    return list.filter(
+      (r) =>
+        (ENGINEER_ACTION.includes(r.status) || (!requireSeparateReviewer && r.status === "waiting_review")) &&
+        r.requester === user.name,
+    );
+  if (user?.role === "reviewer") return list.filter((r) => REVIEWER_ACTION.includes(r.status));
+  return [];
+}
 
 export function runHref(run: RunRecord): string {
   return run.status === "waiting_review" ? `/runs/${run.id}/review` : `/runs/${run.id}`;
@@ -41,10 +56,10 @@ export function useDismiss(open: boolean, close: () => void) {
 
 /** Chuông: các lần chạy đang chờ bạn (dữ liệu thật), không có thông báo dựng sẵn. */
 export function NotificationBell() {
-  const { runs } = useApp();
+  const { runs, user, status } = useApp();
   const [open, setOpen] = useState(false);
   const box = useDismiss(open, () => setOpen(false));
-  const waiting = (runs ?? []).filter((run) => NEEDS_ACTION.includes(run.status));
+  const waiting = waitingFor(user, runs, status?.require_separate_reviewer ?? true);
 
   return (
     <div className="popover" ref={box}>

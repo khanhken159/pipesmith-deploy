@@ -1,15 +1,12 @@
-import { ActivityFeed, Hero, NewRequestCard, RecentRunsCard, SystemOverview } from "@/components/home/Dashboard";
+"use client";
 
+import { useApp } from "@/components/AppContext";
+import { AdminHome, EngineerHome, ReviewerHome } from "@/components/home/Dashboard";
+
+// Trang chủ khác nhau theo vai trò: mỗi người thấy trước việc của mình.
 export default function HomePage() {
-  return (
-    <div className="dashboard">
-      <Hero />
-      <SystemOverview />
-      <RecentRunsCard />
-      <div className="dash-side">
-        <NewRequestCard />
-        <ActivityFeed />
-      </div>
-    </div>
-  );
+  const { user } = useApp();
+  if (user?.role === "reviewer") return <ReviewerHome />;
+  if (user?.role === "admin") return <AdminHome />;
+  return <EngineerHome />;
 }

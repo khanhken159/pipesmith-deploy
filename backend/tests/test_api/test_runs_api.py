@@ -16,9 +16,9 @@ API = "/api/v1"
 REQUEST = {"request_text": "Gộp đơn hàng 3 nguồn, tính doanh thu ngày"}
 
 
-async def _create_and_answer(client: AsyncClient, user: str) -> str:
+async def _create_and_answer(client: AsyncClient) -> str:
     """Tạo yêu cầu, trả lời J1 bằng lựa chọn đầu, đồng ý kế hoạch J1b, chờ tới bản duyệt; trả về run_id."""
-    created = await client.post(f"{API}/runs", json=REQUEST, headers={"X-User": user})
+    created = await client.post(f"{API}/runs", json=REQUEST)
     assert created.status_code == 202
     run_id = created.json()["run_id"]
     get_jobs().wait(run_id)
@@ -39,7 +39,7 @@ async def _create_and_answer(client: AsyncClient, user: str) -> str:
 @pytest.mark.slow
 async def test_full_flow_single_de_role(client: AsyncClient, seeded_sources: Path):
     """Mặc định một vai trò DE: người tạo yêu cầu tự xem bằng chứng và duyệt."""
-    run_id = await _create_and_answer(client, "an")
+    run_id = await _create_and_answer(client)
     detail = (await client.get(f"{API}/runs/{run_id}")).json()
     assert detail["record"]["status"] == "waiting_review" and detail["busy"] is False
     assert detail["spec"]["target"] == "fct_daily_revenue" and detail["evidence"]["measured"]
@@ -62,25 +62,20 @@ async def test_full_flow_single_de_role(client: AsyncClient, seeded_sources: Pat
 
 @pytest.mark.slow
 async def test_separate_reviewer_mode_blocks_self_approval(
-    client: AsyncClient, seeded_sources: Path, separate_reviewer
+    client: AsyncClient, seeded_sources: Path, separate_reviewer, login
 ):
-    run_id = await _create_and_answer(client, "an")
+    run_id = await _create_and_answer(client)
     approve = {"decision": "approve"}
-    self_review = await client.post(
-        f"{API}/runs/{run_id}/review", json=approve, headers={"X-User": "an", "X-Role": "reviewer"}
-    )
-    assert self_review.status_code == 403 and "tự duyệt" in self_review.json()["detail"]
-    wrong_role = await client.post(f"{API}/runs/{run_id}/review", json=approve, headers={"X-User": "binh"})
-    assert wrong_role.status_code == 403
-    ok = await client.post(
-        f"{API}/runs/{run_id}/review", json=approve, headers={"X-User": "binh", "X-Role": "reviewer"}
-    )
+    self_review = await client.post(f"{API}/runs/{run_id}/review", json=approve, headers={"X-Role": "reviewer"})
+    assert self_review.status_code == 403
+    reviewer = await login("reviewer")
+    ok = await reviewer.post(f"{API}/runs/{run_id}/review", json=approve)
     assert ok.status_code == 202
 
 
 @pytest.mark.slow
 async def test_run_catalog_shows_tables_lineage_and_keys(client: AsyncClient, seeded_sources: Path):
-    run_id = await _create_and_answer(client, "an")
+    run_id = await _create_and_answer(client)
     catalog = (await client.get(f"{API}/runs/{run_id}/catalog")).json()
     tables = {t["id"]: t for t in catalog["tables"]}
     assert {"raw.shopee_orders", "main.stg_shopee_orders", "main.fct_daily_revenue"} <= set(tables)

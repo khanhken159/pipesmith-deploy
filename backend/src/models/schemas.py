@@ -53,3 +53,4 @@ class HealthResponse(BaseModel):
     env: str
     database: str
     llm_provider: str
+    auth_database: str = "unconfigured"

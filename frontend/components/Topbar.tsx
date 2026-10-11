@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import type { Role } from "@/lib/types";
 
 import { useApp, type ThemeChoice } from "./AppContext";
-import { MonitorIcon, MoonIcon, SunIcon } from "./icons";
+import { LogoutIcon, MonitorIcon, MoonIcon, SunIcon } from "./icons";
 import { useDismiss } from "./NotificationBell";
 
 const THEME_LABELS: Record<ThemeChoice, string> = { system: "Theo máy", light: "Sáng", dark: "Tối" };
 const THEME_ORDER: ThemeChoice[] = ["system", "light", "dark"];
 const THEME_ICONS = { system: MonitorIcon, light: SunIcon, dark: MoonIcon };
-const NAME_PATTERN = /^[A-Za-z0-9._-]{1,32}$/;
+export const ROLE_LABELS: Record<Role, string> = { engineer: "Engineer", reviewer: "Reviewer", admin: "Admin" };
 
 export function ModeBadges() {
   const { status, statusError } = useApp();
@@ -28,58 +29,28 @@ export function ModeBadges() {
   );
 }
 
-function UserForm() {
-  const { user, setUser, status } = useApp();
-  const [name, setName] = useState<string | null>(null);
-  const separate = status?.require_separate_reviewer ?? false;
-  const draft = name ?? user.name;
-  const valid = NAME_PATTERN.test(draft);
+/** Avatar tròn (chữ cái đầu): bấm mở menu người dùng (vai trò, đăng xuất) + giao diện + chế độ LLM. */
+export function AvatarMenu() {
+  const { user, logout, theme, setTheme } = useApp();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const box = useDismiss(open, () => setOpen(false));
+  if (!user) return null;
+  const initials = user.name.slice(0, 2).toUpperCase();
 
-  function submit(event: FormEvent) {
-    event.preventDefault();
-    if (valid) setUser({ ...user, name: draft });
-    setName(null);
+  async function signOut() {
+    setLeaving(true);
+    await logout();
+    router.replace("/login");
   }
 
-  return (
-    <form className="stack" style={{ gap: 8 }} onSubmit={submit}>
-      <label htmlFor="user-name" className="small muted">
-        Tên người dùng
-      </label>
-      <input
-        id="user-name"
-        value={draft}
-        onChange={(e) => setName(e.target.value)}
-        onBlur={submit}
-        aria-invalid={!valid}
-        title="Chữ không dấu, số, . _ - (tối đa 32 ký tự)"
-      />
-      {separate && (
-        <select
-          aria-label="Vai trò"
-          value={user.role === "de" ? "engineer" : user.role}
-          onChange={(e) => setUser({ ...user, role: e.target.value as Role })}
-        >
-          <option value="engineer">Engineer</option>
-          <option value="reviewer">Reviewer</option>
-        </select>
-      )}
-    </form>
-  );
-}
-
-/** Avatar tròn (chữ cái đầu): bấm mở menu người dùng + giao diện + chế độ LLM. */
-export function AvatarMenu() {
-  const { user, theme, setTheme } = useApp();
-  const [open, setOpen] = useState(false);
-  const box = useDismiss(open, () => setOpen(false));
-  const initials = user.name.slice(0, 2).toUpperCase();
   return (
     <div className="popover" ref={box}>
       <button
         type="button"
         className="avatar"
-        aria-label={`Người dùng ${user.name}: mở menu`}
+        aria-label={`${user.display_name} (${ROLE_LABELS[user.role]}): mở menu`}
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
@@ -87,7 +58,11 @@ export function AvatarMenu() {
       </button>
       {open && (
         <div className="flyout menu" role="dialog" aria-label="Người dùng và giao diện">
-          <UserForm />
+          <div className="who">
+            <strong>{user.display_name}</strong>
+            <span className="muted small">@{user.name}</span>
+            <span className={`badge role-${user.role}`}>{ROLE_LABELS[user.role]}</span>
+          </div>
           <div className="segmented" role="group" aria-label="Giao diện">
             {THEME_ORDER.map((value) => (
               <button key={value} type="button" aria-pressed={theme === value} onClick={() => setTheme(value)}>
@@ -96,6 +71,10 @@ export function AvatarMenu() {
             ))}
           </div>
           <ModeBadges />
+          <button type="button" className="btn logout-btn" onClick={signOut} disabled={leaving}>
+            <LogoutIcon size={16} />
+            {leaving ? "Đang đăng xuất…" : "Đăng xuất"}
+          </button>
         </div>
       )}
     </div>
@@ -117,5 +96,30 @@ export function ThemeButton() {
     >
       <Glyph size={18} />
     </button>
+  );
+}
+
+/** Nhắc khi bước này dành cho vai trò khác (nút tương ứng bị khóa; backend vẫn trả 403 nếu cố gọi). */
+export function RoleNote({ need }: { need: Role }) {
+  const { user } = useApp();
+  if (!user || user.role === need) return null;
+  return (
+    <div className="alert info">
+      <span>
+        Bước này dành cho vai trò {ROLE_LABELS[need]}. Bạn đang đăng nhập với vai trò {ROLE_LABELS[user.role]}.
+      </span>
+    </div>
+  );
+}
+
+/** Nhãn vai trò trên thanh trên cùng: màu theo vai trò để luôn biết mình đang đăng nhập với quyền gì. */
+export function RoleChip() {
+  const { user } = useApp();
+  if (!user) return null;
+  return (
+    <span className={`role-chip role-${user.role}`} title={`Bạn đang đăng nhập với vai trò ${ROLE_LABELS[user.role]}`}>
+      <span className="role-dot" aria-hidden />
+      {ROLE_LABELS[user.role]}
+    </span>
   );
 }

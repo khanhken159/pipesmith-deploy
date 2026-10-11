@@ -6,7 +6,9 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { apiPost, messageOf } from "@/lib/api";
 import type { Accepted } from "@/lib/types";
 
+import { useHasRole } from "./AppContext";
 import { ArrowRightIcon } from "./icons";
+import { RoleNote } from "./Topbar";
 import { ErrorBox } from "./ui";
 
 // Nhãn ngắn trên nút gợi ý; bấm vào điền câu yêu cầu đầy đủ.
@@ -22,6 +24,7 @@ export function CreateRunForm() {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const engineer = useHasRole("engineer");
   const tooShort = text.trim().length < 5;
 
   // "Bắt đầu ngay" / "Yêu cầu mới" trỏ tới #request: đưa con trỏ vào ô nhập
@@ -39,7 +42,7 @@ export function CreateRunForm() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (tooShort || sending) return;
+    if (tooShort || sending || !engineer) return;
     setSending(true);
     setError("");
     try {
@@ -84,10 +87,11 @@ export function CreateRunForm() {
             </button>
           ))}
         </div>
-        <button type="submit" className="btn dark pill-btn" disabled={tooShort || sending}>
+        <button type="submit" className="btn dark pill-btn" disabled={tooShort || sending || !engineer}>
           {sending ? "Đang gửi…" : "Gửi"} <ArrowRightIcon size={15} />
         </button>
       </div>
+      <RoleNote need="engineer" />
       {error && <ErrorBox message={error} />}
     </form>
   );

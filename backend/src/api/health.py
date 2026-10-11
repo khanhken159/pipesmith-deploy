@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from src.config import APP_VERSION, get_settings
 from src.models.schemas import HealthResponse
+from src.services import auth
 from src.services.store import get_store
 
 router = APIRouter(tags=["health"])
@@ -21,5 +22,6 @@ async def health() -> HealthResponse:
         version=APP_VERSION,
         env=settings.app_env,
         database="ok" if get_store().ping() else "error",
+        auth_database="unconfigured" if not settings.database_url else ("ok" if auth.ping() else "error"),
         llm_provider=settings.llm_provider,
     )

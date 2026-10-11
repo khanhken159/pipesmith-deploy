@@ -6,12 +6,15 @@ import { apiPost, messageOf } from "@/lib/api";
 import type { ErrorEntry } from "@/lib/types";
 import { usePoll } from "@/lib/usePoll";
 
+import { useApp, useCanReview } from "./AppContext";
+import { RoleNote } from "./Topbar";
 import { Card, Empty, ErrorBox, Loading } from "./ui";
 
 function EntryCard({ entry, onDone }: { entry: ErrorEntry; onDone: () => Promise<void> }) {
   const [fix, setFix] = useState(entry.fix);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const canReview = useCanReview();
 
   async function send(action: "approve" | "discard") {
     setSending(true);
@@ -42,10 +45,15 @@ function EntryCard({ entry, onDone }: { entry: ErrorEntry; onDone: () => Promise
         <textarea id={`fix-${entry.id}`} value={fix} onChange={(e) => setFix(e.target.value)} maxLength={2000} />
         {error && <ErrorBox message={error} />}
         <div className="row" style={{ justifyContent: "flex-end" }}>
-          <button type="button" className="btn danger" disabled={sending} onClick={() => send("discard")}>
+          <button type="button" className="btn danger" disabled={sending || !canReview} onClick={() => send("discard")}>
             Bỏ
           </button>
-          <button type="button" className="btn ok" disabled={sending || !fix.trim()} onClick={() => send("approve")}>
+          <button
+            type="button"
+            className="btn ok"
+            disabled={sending || !canReview || !fix.trim()}
+            onClick={() => send("approve")}
+          >
             Duyệt bài học
           </button>
         </div>
@@ -55,15 +63,22 @@ function EntryCard({ entry, onDone }: { entry: ErrorEntry; onDone: () => Promise
 }
 
 export function ErrorBook() {
+  const { status, user } = useApp();
   const { data, error, loading, refresh } = usePoll<ErrorEntry[]>("/errors", null);
   if (loading && !data) return <Loading text="Đang tải sổ lỗi…" />;
   if (!data) return <ErrorBox message={error || "Không tải được sổ lỗi."} onRetry={refresh} />;
   if (data.length === 0) return <Empty>Không có mục nào chờ duyệt.</Empty>;
   return (
-    <div className="grid-2">
-      {data.map((entry) => (
-        <EntryCard key={entry.id} entry={entry} onDone={refresh} />
-      ))}
+    <div className="stack">
+      {status?.require_separate_reviewer && user?.role !== "reviewer" && <RoleNote need="reviewer" />}
+      {!status?.require_separate_reviewer && user?.role === "admin" && (
+        <div className="alert info">Chỉ Engineer hoặc Reviewer mới có thể duyệt mục sổ lỗi.</div>
+      )}
+      <div className="grid-2">
+        {data.map((entry) => (
+          <EntryCard key={entry.id} entry={entry} onDone={refresh} />
+        ))}
+      </div>
     </div>
   );
 }

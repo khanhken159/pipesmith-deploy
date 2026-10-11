@@ -1,12 +1,10 @@
 """Duyệt (J2): hàng đợi chờ duyệt, approve/reject theo luật `review_permission_error` (dùng chung với CLI)."""
 
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 
 from src.agents import runner
 from src.agents.runner import PermissionDeniedError, RunStateError
-from src.api.deps import CurrentUser, current_user, run_or_404
+from src.api.deps import ReviewActor, run_or_404
 from src.api.requests import Accepted, ReviewBody
 from src.models.evidence import ReviewDecision
 from src.models.schemas import RunRecord, RunStatus
@@ -23,7 +21,7 @@ async def review_queue() -> list[RunRecord]:
 
 
 @router.post("/runs/{run_id}/review", status_code=status.HTTP_202_ACCEPTED, response_model=Accepted)
-def review(run_id: str, body: ReviewBody, user: Annotated[CurrentUser, Depends(current_user)]) -> Accepted:
+def review(run_id: str, body: ReviewBody, user: ReviewActor) -> Accepted:
     """Duyệt hoặc từ chối; từ chối kèm ghi chú → agent sửa lại rồi chờ duyệt lần nữa."""
     run_or_404(run_id)
     if body.decision == "reject" and not body.note.strip():

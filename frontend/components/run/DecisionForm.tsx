@@ -4,30 +4,32 @@ import { useState } from "react";
 
 import { STATUS_LABELS } from "@/lib/format";
 
-import { useApp } from "../AppContext";
+import { useApp, useCanReview } from "../AppContext";
 import { Card, ErrorBox } from "../ui";
 import { useRun } from "./RunContext";
 
 function SeparateModeHint({ requester }: { requester: string }) {
   const { user } = useApp();
-  if (user.role === "reviewer" && user.name !== requester) return null;
+  if (!user || (user.role === "reviewer" && user.name !== requester)) return null;
   return (
     <div className="alert warn">
-      <span>
-        Đang bật chế độ 2 người: cần vai trò Reviewer và khác người tạo yêu cầu ({requester}). Đổi ở thanh trên cùng.
-      </span>
+      <span>Đang bật chế độ hai người: cần một tài khoản Reviewer khác người tạo yêu cầu ({requester}).</span>
     </div>
   );
 }
 
 export function DecisionForm() {
   const { detail, act } = useRun();
-  const { status } = useApp();
+  const { status, user } = useApp();
+  const canReview = useCanReview();
   const [note, setNote] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   if (!detail) return null;
   const waiting = detail.record.status === "waiting_review" && !detail.busy;
+  const sameReviewer =
+    status?.require_separate_reviewer && user?.role === "reviewer" && user.name === detail.record.requester;
+  const canDecide = canReview && !sameReviewer;
 
   async function decide(decision: "approve" | "reject") {
     setSending(true);
@@ -49,7 +51,12 @@ export function DecisionForm() {
             </span>
           </div>
         )}
-        {waiting && status?.require_separate_reviewer && <SeparateModeHint requester={detail.record.requester} />}
+        {waiting && !canDecide && status?.require_separate_reviewer && (
+          <SeparateModeHint requester={detail.record.requester} />
+        )}
+        {waiting && !canDecide && !status?.require_separate_reviewer && (
+          <div className="alert info">Chỉ Engineer hoặc Reviewer mới có thể duyệt lần chạy này.</div>
+        )}
         <label htmlFor="review-note">Ghi chú (bắt buộc khi từ chối — agent sẽ sửa theo ghi chú)</label>
         <textarea
           id="review-note"
@@ -58,19 +65,24 @@ export function DecisionForm() {
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Ví dụ: loại đơn hoàn khỏi doanh thu; đổi tên cột revenue thành revenue_vnd"
-          disabled={!waiting}
+          disabled={!waiting || !canDecide}
         />
         {error && <ErrorBox message={error} />}
         <div className="row" style={{ justifyContent: "flex-end" }}>
           <button
             type="button"
             className="btn danger"
-            disabled={!waiting || sending || !note.trim()}
+            disabled={!waiting || !canDecide || sending || !note.trim()}
             onClick={() => decide("reject")}
           >
             Từ chối và ghi chú
           </button>
-          <button type="button" className="btn ok" disabled={!waiting || sending} onClick={() => decide("approve")}>
+          <button
+            type="button"
+            className="btn ok"
+            disabled={!waiting || !canDecide || sending}
+            onClick={() => decide("approve")}
+          >
             Duyệt
           </button>
         </div>

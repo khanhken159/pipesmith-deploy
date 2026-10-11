@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 
 import type { ClarifyQuestion } from "@/lib/types";
 
+import { useCanOperatePipeline } from "../AppContext";
 import { ErrorBox } from "../ui";
 import { useRun } from "./RunContext";
 
@@ -11,6 +12,7 @@ import { useRun } from "./RunContext";
 
 export function ClarifyForm({ unknowns, questions }: { unknowns: string[]; questions: ClarifyQuestion[] }) {
   const { act } = useRun();
+  const canOperate = useCanOperatePipeline();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -25,6 +27,7 @@ export function ClarifyForm({ unknowns, questions }: { unknowns: string[]; quest
 
   return (
     <form onSubmit={submit}>
+      {!canOperate && <div className="alert info">Chỉ Engineer mới có thể trả lời câu hỏi cho Agent.</div>}
       {unknowns.length > 0 && (
         <div className="alert info" style={{ marginBottom: 12 }}>
           <span>Agent chưa rõ: {unknowns.join("; ")}</span>
@@ -44,6 +47,7 @@ export function ClarifyForm({ unknowns, questions }: { unknowns: string[]; quest
                   value={option}
                   checked={answers[q.id] === option}
                   onChange={() => setAnswers({ ...answers, [q.id]: option })}
+                  disabled={!canOperate || sending}
                 />
                 <span>{option}</span>
               </label>
@@ -53,7 +57,7 @@ export function ClarifyForm({ unknowns, questions }: { unknowns: string[]; quest
       ))}
       {error && <ErrorBox message={error} />}
       <div className="row" style={{ justifyContent: "flex-end", marginTop: 8 }}>
-        <button type="submit" className="btn primary" disabled={!complete || sending}>
+        <button type="submit" className="btn primary" disabled={!canOperate || !complete || sending}>
           {sending ? "Đang gửi…" : "Gửi câu trả lời"}
         </button>
       </div>
@@ -63,6 +67,7 @@ export function ClarifyForm({ unknowns, questions }: { unknowns: string[]; quest
 
 export function RescueForm({ error, attempts }: { error: string; attempts: number }) {
   const { act } = useRun();
+  const canOperate = useCanOperatePipeline();
   const [hint, setHint] = useState("");
   const [sending, setSending] = useState(false);
   const [failure, setFailure] = useState("");
@@ -77,14 +82,26 @@ export function RescueForm({ error, attempts }: { error: string; attempts: numbe
     <div className="stack" style={{ gap: 10 }}>
       <p>Agent đã sửa {attempts} lần nhưng vẫn lỗi. Lỗi cuối (do V-node đo):</p>
       <pre>{error || "(không có chi tiết)"}</pre>
+      {!canOperate && <div className="alert info">Chỉ Engineer mới có thể tiếp tục hoặc dừng pipeline.</div>}
       <label htmlFor="hint">Gợi ý cho agent (ví dụ: cột ngày ở nguồn Tiki dạng dd/mm/yyyy)</label>
-      <textarea id="hint" value={hint} onChange={(e) => setHint(e.target.value)} maxLength={2000} />
+      <textarea
+        id="hint"
+        value={hint}
+        onChange={(e) => setHint(e.target.value)}
+        maxLength={2000}
+        disabled={!canOperate || sending}
+      />
       {failure && <ErrorBox message={failure} />}
       <div className="row" style={{ justifyContent: "flex-end" }}>
-        <button type="button" className="btn danger" disabled={sending} onClick={() => send("abort")}>
+        <button type="button" className="btn danger" disabled={!canOperate || sending} onClick={() => send("abort")}>
           Dừng lần chạy
         </button>
-        <button type="button" className="btn primary" disabled={sending || !hint.trim()} onClick={() => send("retry")}>
+        <button
+          type="button"
+          className="btn primary"
+          disabled={!canOperate || sending || !hint.trim()}
+          onClick={() => send("retry")}
+        >
           Gửi gợi ý và thử lại
         </button>
       </div>

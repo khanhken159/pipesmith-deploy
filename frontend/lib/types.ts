@@ -177,6 +177,17 @@ export interface RunDetail {
   current?: CurrentNode | null;
 }
 
+/** Một dòng nhật ký kiểm toán (màn Admin). */
+export interface AuditEntry {
+  at: string;
+  actor_name: string;
+  action: string;
+  target: string;
+  outcome: string;
+  ip: string;
+  detail: Record<string, unknown>;
+}
+
 export type StageState = "waiting" | "running" | "passed" | "failed" | "human";
 
 /** Một nút E/V/J trên đường ống (src/agents/stages.py). */
@@ -280,9 +291,23 @@ export interface Accepted {
   message: string;
 }
 
-export type Role = "de" | "engineer" | "reviewer";
+/** Vai trò (kiểm ở backend; web chỉ dùng để ẩn/hiện nút): engineer tạo yêu cầu, reviewer duyệt, admin quản lý tài khoản. */
+export type Role = "engineer" | "reviewer" | "admin";
 
+/** Người dùng của phiên đăng nhập (GET /auth/me). */
 export interface CurrentUser {
+  id: number;
   name: string;
+  display_name: string;
   role: Role;
+}
+
+/** Tài khoản trong màn quản trị (không có mật khẩu/chuỗi băm). */
+export interface AdminUser {
+  id: number;
+  username: string;
+  display_name: string;
+  role: Role;
+  is_active: boolean;
+  last_login_at: string | null;
 }

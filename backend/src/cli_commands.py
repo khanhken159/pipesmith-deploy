@@ -1,6 +1,7 @@
 """Xử lý từng lệnh CLI. Mỗi hàm trả mã thoát (0 = thành công)."""
 
 import argparse
+import getpass
 import subprocess
 import sys
 from collections.abc import Callable
@@ -259,6 +260,28 @@ def cmd_eval(args: argparse.Namespace) -> int:
     return subprocess.run(command, cwd=script.parents[1], check=False).returncode
 
 
+def cmd_users(args: argparse.Namespace) -> int:
+    """Create an account with hidden password input for initial admin bootstrap."""
+    from src.services import auth
+
+    missing = get_settings().missing_auth_settings
+    if missing:
+        console.print(f"[red]Thiếu cấu hình đăng nhập: {', '.join(missing)}.[/]")
+        return 2
+    password = getpass.getpass("Mật khẩu (ít nhất 12 ký tự): ")
+    if password != getpass.getpass("Nhập lại mật khẩu: "):
+        console.print("[red]Hai lần nhập không khớp.[/]")
+        return 2
+    try:
+        user = auth.create_user(args.username, args.name, args.role, password)
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/]")
+        return 2
+    auth.audit("user.create", "cli", target=user.username, detail={"role": user.role, "via": "cli"})
+    console.print(f"[green]Đã tạo {user.username} ({user.role}).[/]")
+    return 0
+
+
 COMMANDS: dict[str, Callable[[argparse.Namespace], int]] = {
     "doctor": cmd_doctor,
     "seed": cmd_seed,
@@ -269,4 +292,5 @@ COMMANDS: dict[str, Callable[[argparse.Namespace], int]] = {
     "errors": cmd_errors,
     "optimize": cmd_optimize,
     "eval": cmd_eval,
+    "users": cmd_users,
 }

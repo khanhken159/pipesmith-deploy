@@ -4,14 +4,13 @@ Thao tác làm graph chạy tiếp trả về 202 ngay; web hỏi `GET /runs/{id
 """
 
 from pathlib import Path
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, HTTPException, Query, Response, status
 
 from src.agents import runner
 from src.agents.nodes.clarify import valid_answers
 from src.agents.runner import ResumeRequest, RunStateError
-from src.api.deps import CurrentUser, current_user, run_or_404
+from src.api.deps import Engineer, run_or_404
 from src.api.requests import Accepted, AnswerBody, CreateRunBody, PlanBody, RescueBody, RunDetail, RunFiles
 from src.models.schemas import RunRecord
 from src.models.spec import ClarifyQuestion
@@ -32,7 +31,7 @@ async def list_runs(limit: int = Query(default=20, ge=1, le=100)) -> list[RunRec
 
 
 @router.post("", status_code=status.HTTP_202_ACCEPTED, response_model=Accepted)
-def create_run(body: CreateRunBody, user: Annotated[CurrentUser, Depends(current_user)]) -> Accepted:
+def create_run(body: CreateRunBody, user: Engineer) -> Accepted:
     """Tạo yêu cầu mới; agent chạy nền tới điểm dừng đầu tiên (câu hỏi làm rõ hoặc bản duyệt)."""
     run_id = runner.create_run(body.request_text.strip(), user.name)
     get_jobs().submit(run_id, lambda sink: runner.run_created(run_id, sink))
@@ -102,7 +101,7 @@ def _resume(run_id: str, kind: str, value: dict) -> Accepted:
 
 
 @router.post("/{run_id}/answers", status_code=status.HTTP_202_ACCEPTED, response_model=Accepted)
-def answer(run_id: str, body: AnswerBody) -> Accepted:
+def answer(run_id: str, body: AnswerBody, user: Engineer) -> Accepted:
     """Trả lời câu hỏi làm rõ (J1); lựa chọn phải đúng một trong các đáp án đã đưa ra."""
     run_or_404(run_id)
     questions = [ClarifyQuestion.model_validate(q) for q in _pending(run_id, "clarify").get("questions", [])]
@@ -113,7 +112,7 @@ def answer(run_id: str, body: AnswerBody) -> Accepted:
 
 
 @router.post("/{run_id}/plan", status_code=status.HTTP_202_ACCEPTED, response_model=Accepted)
-def review_plan(run_id: str, body: PlanBody) -> Accepted:
+def review_plan(run_id: str, body: PlanBody, user: Engineer) -> Accepted:
     """Duyệt kế hoạch (J1b): đồng ý → agent sinh code; sửa (kèm ghi chú) → agent lập lại kế hoạch."""
     run_or_404(run_id)
     _pending(run_id, "plan")
@@ -123,7 +122,7 @@ def review_plan(run_id: str, body: PlanBody) -> Accepted:
 
 
 @router.post("/{run_id}/rescue", status_code=status.HTTP_202_ACCEPTED, response_model=Accepted)
-def rescue(run_id: str, body: RescueBody) -> Accepted:
+def rescue(run_id: str, body: RescueBody, user: Engineer) -> Accepted:
     """Cứu hộ khi agent sửa không được: gợi ý rồi thử lại, hoặc dừng."""
     run_or_404(run_id)
     _pending(run_id, "rescue")

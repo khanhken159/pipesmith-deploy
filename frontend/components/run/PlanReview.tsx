@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import type { PlanPending, PlanStep, Spec } from "@/lib/types";
 
+import { useCanOperatePipeline } from "../AppContext";
 import { ErrorBox } from "../ui";
 import { useRun } from "./RunContext";
 
@@ -63,6 +64,7 @@ function SpecGlance({ spec, sources }: { spec: Spec; sources: string[] }) {
 
 export function PlanReview({ pending }: { pending: PlanPending }) {
   const { act } = useRun();
+  const canOperate = useCanOperatePipeline();
   const [note, setNote] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -91,6 +93,7 @@ export function PlanReview({ pending }: { pending: PlanPending }) {
       <div className="alert info">
         <span>{pending.next_steps}</span>
       </div>
+      {!canOperate && <div className="alert info">Chỉ Engineer mới có thể duyệt hoặc yêu cầu sửa kế hoạch.</div>}
       <label htmlFor="plan-note">Muốn sửa? Ghi rõ cần thay đổi gì (agent sẽ lập lại kế hoạch)</label>
       <textarea
         id="plan-note"
@@ -99,18 +102,19 @@ export function PlanReview({ pending }: { pending: PlanPending }) {
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="Ví dụ: thêm cột kênh bán; loại đơn hoàn tiền khỏi doanh thu"
+        disabled={!canOperate || sending}
       />
       {error && <ErrorBox message={error} />}
       <div className="row" style={{ justifyContent: "flex-end" }}>
         <button
           type="button"
           className="btn danger"
-          disabled={sending || !note.trim()}
+          disabled={!canOperate || sending || !note.trim()}
           onClick={() => decide("revise")}
         >
           Yêu cầu sửa kế hoạch
         </button>
-        <button type="button" className="btn ok" disabled={sending} onClick={() => decide("approve")}>
+        <button type="button" className="btn ok" disabled={!canOperate || sending} onClick={() => decide("approve")}>
           Đồng ý, sinh code
         </button>
       </div>

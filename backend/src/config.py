@@ -29,6 +29,17 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     cors_origins: str = "http://localhost:3000"
 
+    # Account and session storage. Agent run/checkpoint stores below stay on SQLite.
+    database_url: str = ""
+    migration_database_url: str = ""
+    db_app_role: str = Field(default="p113_app", pattern=r"^[a-z_][a-z0-9_]{0,62}$")
+    session_secret: str = ""
+    session_ttl_minutes: int = Field(default=480, ge=5, le=1440)
+    session_cookie_secure: bool = True
+    session_cookie_samesite: Literal["lax", "strict", "none"] = "lax"
+    login_max_failures: int = Field(default=5, ge=1)
+    login_lock_minutes: int = Field(default=15, ge=1)
+
     # LLM — mặc định `mock` để chạy không cần khóa
     llm_provider: Literal["mock", "openai", "google"] = "mock"
     openai_api_key: str = ""
@@ -128,6 +139,12 @@ class Settings(BaseSettings):
     def is_mock(self) -> bool:
         """True khi đang chạy chế độ mô phỏng (LLM giả)."""
         return self.llm_provider == "mock"
+
+    @property
+    def missing_auth_settings(self) -> list[str]:
+        """Tên biến còn thiếu để bật đăng nhập; không bao giờ trả giá trị bí mật."""
+        missing = [] if self.database_url else ["DATABASE_URL"]
+        return missing + ([] if len(self.session_secret) >= 32 else ["SESSION_SECRET"])
 
 
 @lru_cache
