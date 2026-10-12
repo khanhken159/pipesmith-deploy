@@ -57,6 +57,87 @@ class LLMProvider(Protocol):
         ...
 
 
+def _is_gpt6_reasoning_model(model: str) -> bool:
+    """Nhận diện GPT-6 và các biến thể có reasoning effort trong API hiện tại."""
+    return re.match(r"^gpt-6(?:\.\d+)?(?:-|$)", model.strip(), re.IGNORECASE) is not None
+
+
+def _openai_client_options(settings: Settings, model: str) -> dict:
+    """Tạo tham số tương thích với endpoint Chat Completions cho model đã chọn."""
+    options = {
+        "model": model,
+        "api_key": settings.openai_api_key,
+        "max_completion_tokens": settings.llm_max_tokens,
+        "timeout": 120,
+        "max_retries": 2,
+    }
+    if _is_gpt6_reasoning_model(model):
+        # GPT-6 từ chối temperature/top_p khi reasoning đang bật.
+        options["reasoning_effort"] = settings.llm_reasoning_effort
+    else:
+        options["temperature"] = settings.llm_temperature
+    return options
+
+
+def _openai_error_summary(exc: Exception, model: str) -> str:
+    """Tóm tắt lỗi OpenAI cho người dùng mà không đưa message/body có thể chứa dữ liệu vào log/UI."""
+    status = getattr(exc, "status_code", None)
+    body = getattr(exc, "body", None)
+    detail = body.get("error", body) if isinstance(body, dict) else {}
+    detail = detail if isinstance(detail, dict) else {}
+    code = detail.get("code") or getattr(exc, "code", None)
+    param = detail.get("param") or getattr(exc, "param", None)
+    api_message = detail.get("message", "")
+    api_message = api_message.lower() if isinstance(api_message, str) else ""
+
+    def safe_field(value: object) -> str:
+        if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_.\[\]-]{1,100}", value):
+            return ""
+        return value
+
+    code, param = safe_field(code), safe_field(param)
+    if status == 401:
+        cause = "Xác thực OpenAI thất bại; kiểm tra API key và project đang dùng."
+    elif status == 403:
+        cause = f"Project/API key không có quyền gọi model '{model}'."
+    elif code == "model_not_found" or status == 404:
+        if "does not exist" in api_message and "do not have access" not in api_message:
+            cause = f"Model '{model}' không tồn tại hoặc sai tên."
+        elif "do not have access" in api_message and "does not exist" not in api_message:
+            cause = f"Project/API key chưa được cấp quyền dùng model '{model}'."
+        else:
+            cause = f"Không tìm thấy model '{model}' hoặc project chưa được cấp quyền truy cập model này."
+    elif status == 400:
+        field = f" Tham số: {param}." if param else ""
+        api_code = f" Mã: {code}." if code else ""
+        cause = f"Request OpenAI có tham số không hợp lệ hoặc không được model hỗ trợ.{field}{api_code}"
+    elif status == 429 and code in {
+        "insufficient_quota",
+        "credit_balance_exhausted",
+        "organization_spend_limit_exceeded",
+        "project_spend_limit_exceeded",
+        "organization_usage_limit_exceeded",
+    }:
+        cause = "OpenAI đã hết quota/credit hoặc chạm giới hạn chi tiêu; kiểm tra billing và usage limit."
+    elif status == 429:
+        cause = "OpenAI đang giới hạn tốc độ request; chờ rồi thử lại hoặc kiểm tra rate limit."
+    elif type(exc).__name__ == "APITimeoutError":
+        cause = "Request OpenAI hết thời gian chờ; kiểm tra kết nối mạng rồi thử lại."
+    elif type(exc).__name__ == "APIConnectionError" or status is None:
+        cause = "Không kết nối được tới OpenAI; kiểm tra mạng, DNS, firewall và thử lại."
+    elif isinstance(status, int) and status >= 500:
+        cause = f"OpenAI tạm thời gặp lỗi máy chủ (HTTP {status}); thử lại sau."
+    else:
+        cause = "OpenAI từ chối request hoặc gặp lỗi chưa phân loại; kiểm tra cấu hình model và log mã lỗi."
+
+    metadata = [f"HTTP {status}" if isinstance(status, int) else "không có HTTP status"]
+    if code:
+        metadata.append(f"code={code}")
+    if param:
+        metadata.append(f"param={param}")
+    return f"{cause} ({', '.join(metadata)})."
+
+
 def render_prompt(request: LLMRequest) -> tuple[str, str]:
     """Đọc `src/prompts/<task>.md`, điền biến `$ten_bien`, tách phần system và user."""
     path = PROMPTS_DIR / f"{request.task}.md"
@@ -110,14 +191,7 @@ class OpenAIProvider:
         from langchain_openai import ChatOpenAI
 
         self.model = model or settings.model_name
-        client = ChatOpenAI(
-            model=self.model,
-            api_key=settings.openai_api_key,
-            temperature=settings.llm_temperature,
-            max_tokens=settings.llm_max_tokens,
-            timeout=120,
-            max_retries=2,
-        )
+        client = ChatOpenAI(**_openai_client_options(settings, self.model))
         self.client = client.bind(response_format={"type": "json_object"})
 
     def complete(self, request: LLMRequest, prompt: tuple[str, str]) -> LLMResponse:
@@ -129,8 +203,25 @@ class OpenAIProvider:
         )
         try:
             message = self.client.invoke([("system", prompt[0]), ("human", prompt[1])])
-        except openai.OpenAIError as exc:  # gồm cả LengthFinishReasonError (model suy luận dùng hết token)
-            raise LLMCallError(f"Gọi OpenAI thất bại ({type(exc).__name__}). Kiểm tra khóa, mạng và hạn mức.") from exc
+        except openai.OpenAIError as exc:  # gồm cả lỗi API và LengthFinishReasonError
+            status = getattr(exc, "status_code", None)
+            body = getattr(exc, "body", None)
+            details = body.get("error", body) if isinstance(body, dict) else {}
+            details = details if isinstance(details, dict) else {}
+            code = details.get("code") or getattr(exc, "code", None)
+            param = details.get("param") or getattr(exc, "param", None)
+            logger.warning(
+                "OpenAI request failed",
+                extra={
+                    "task": request.task,
+                    "model": self.model,
+                    "status": status,
+                    "code": code if isinstance(code, str) else "",
+                    "param": param if isinstance(param, str) else "",
+                    "error_type": type(exc).__name__,
+                },
+            )
+            raise LLMCallError(_openai_error_summary(exc, self.model)) from None
         return _response(request, message, info)
 
 

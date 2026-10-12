@@ -53,6 +53,8 @@ class Settings(BaseSettings):
     # Google Gemini: dùng khi LLM_PROVIDER=google, hoặc làm dự phòng khi OpenAI lỗi (LLM_FALLBACK=google)
     google_model_name: str = "gemini-3.1-flash-lite"
     llm_fallback: Literal["none", "google"] = "google"
+    # GPT-6 Luna và GPT-6.1 Sol cùng hỗ trợ medium; không dùng `none` vì Sol không hỗ trợ.
+    llm_reasoning_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
     llm_temperature: float = Field(default=0.0, ge=0.0, le=2.0)
     llm_max_tokens: int = Field(default=16000, ge=256)  # model suy luận (gpt-5.x) cần chỗ cho token suy luận ẩn
 

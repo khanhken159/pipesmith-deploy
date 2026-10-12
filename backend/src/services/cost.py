@@ -3,8 +3,10 @@
 Giá chỉ là ước tính để so sánh; kiểm tra lại trang giá của nhà cung cấp trước khi báo cáo.
 """
 
-# Giá chuẩn (ngữ cảnh ≤200k), đối chiếu trang giá chính thức OpenAI và Google ngày 2026-10-02.
+# Giá chuẩn (ngữ cảnh ≤200k), đối chiếu trang giá chính thức OpenAI và Google ngày 2026-10-12.
 PRICES_PER_MILLION: dict[str, tuple[float, float]] = {
+    "gpt-6-luna": (0.10, 0.50),
+    "gpt-6.1-sol": (2.00, 10.00),
     "gpt-5.6-luna": (0.20, 1.20),
     "gpt-5.6-terra": (2.00, 12.00),
     "gpt-5.6-sol": (4.00, 20.00),

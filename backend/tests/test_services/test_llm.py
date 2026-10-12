@@ -9,6 +9,8 @@ from src.services.llm import (
     LLMOutputError,
     LLMRequest,
     OpenAIProvider,
+    _openai_client_options,
+    _openai_error_summary,
     call_llm,
     get_provider,
     parse_json_output,
@@ -75,24 +77,25 @@ KEYS = {"openai_api_key": "sk-test-123", "google_api_key": "AIza-test-123"}
 
 def test_model_per_task_defaults():
     settings = Settings(llm_provider="openai", **KEYS)
-    assert settings.model_for("planner") == settings.model_for("codegen") == "gpt-5.6-luna"
-    assert settings.model_for("optimizer") == "gpt-5.6-terra"
+    assert settings.model_for("planner") == settings.model_for("codegen") == "gpt-6-luna"
+    assert settings.model_for("testgen") == "gpt-6-luna"
+    assert settings.model_for("optimizer") == "gpt-6.1-sol"
     assert settings.model_for("codegen", "google") == "gemini-3.1-flash-lite"
-    assert "optimizer=gpt-5.6-terra" in settings.models_summary
+    assert "optimizer=gpt-6.1-sol" in settings.models_summary
 
 
 def test_model_override_for_one_task():
-    settings = Settings(llm_provider="openai", model_testgen="gpt-5.6-terra", **KEYS)
-    assert settings.model_for("testgen") == "gpt-5.6-terra" and settings.model_for("planner") == "gpt-5.6-luna"
+    settings = Settings(llm_provider="openai", model_testgen="gpt-6.1-sol", **KEYS)
+    assert settings.model_for("testgen") == "gpt-6.1-sol" and settings.model_for("planner") == "gpt-6-luna"
 
 
 def test_get_provider_wraps_fallback_and_uses_task_model():
     from src.services.llm import FallbackProvider
 
     provider = get_provider(Settings(llm_provider="openai", llm_fallback="google", **KEYS), task="optimizer")
-    assert isinstance(provider, FallbackProvider) and provider.primary.model == "gpt-5.6-terra"
+    assert isinstance(provider, FallbackProvider) and provider.primary.model == "gpt-6.1-sol"
     plain = get_provider(Settings(llm_provider="openai", llm_fallback="none", **KEYS), task="codegen")
-    assert isinstance(plain, OpenAIProvider) and plain.model == "gpt-5.6-luna"
+    assert isinstance(plain, OpenAIProvider) and plain.model == "gpt-6-luna"
 
 
 class _Failing:
@@ -134,18 +137,75 @@ def test_google_provider_without_key_gives_vietnamese_instruction():
 
 
 def test_new_model_prices():
+    assert estimate_cost_usd("gpt-6-luna", 1_000_000, 1_000_000) == pytest.approx(0.60)
+    assert estimate_cost_usd("gpt-6.1-sol", 1_000_000, 1_000_000) == pytest.approx(12.00)
     assert estimate_cost_usd("gpt-5.6-luna", 1_000_000, 1_000_000) == pytest.approx(1.40)
     assert estimate_cost_usd("gpt-5.6-terra", 1_000_000, 1_000_000) == pytest.approx(14.00)
     assert estimate_cost_usd("gemini-3.1-flash-lite", 1_000_000, 1_000_000) == pytest.approx(1.75)
 
 
+@pytest.mark.parametrize("model", ["gpt-6-luna", "gpt-6.1-sol"])
+def test_gpt6_chat_completion_payload_uses_reasoning_and_json_without_temperature(model):
+    from langchain_core.messages import HumanMessage, SystemMessage
+
+    settings = Settings(llm_provider="openai", llm_temperature=0.0, llm_reasoning_effort="medium", **KEYS)
+    provider = OpenAIProvider(settings, model)
+    chat = provider.client.bound
+    payload = chat._get_request_payload(
+        [SystemMessage(content="Return a JSON object."), HumanMessage(content="Return {\"ok\":true}.")],
+        **provider.client.kwargs,
+    )
+
+    assert payload["model"] == model
+    assert payload["reasoning_effort"] == "medium"
+    assert "temperature" not in payload
+    assert payload["max_completion_tokens"] == settings.llm_max_tokens
+    assert payload["response_format"] == {"type": "json_object"}
+
+
+def test_non_gpt6_chat_model_keeps_configured_temperature():
+    options = _openai_client_options(Settings(llm_provider="openai", **KEYS), "gpt-4.1")
+    assert options["temperature"] == 0.0
+    assert "reasoning_effort" not in options
+
+
+@pytest.mark.parametrize(
+    ("status", "code", "param", "expected"),
+    [
+        (400, "unsupported_parameter", "temperature", "tham số không hợp lệ"),
+        (401, "invalid_api_key", None, "xác thực OpenAI thất bại"),
+        (403, "model_not_found", None, "không có quyền"),
+        (404, "model_not_found", None, "Không tìm thấy model"),
+        (429, "rate_limit_exceeded", None, "giới hạn tốc độ"),
+        (429, "insufficient_quota", None, "hết quota/credit"),
+        (None, None, None, "Không kết nối được"),
+    ],
+)
+def test_openai_error_summary_classifies_failure_without_raw_api_message(status, code, param, expected):
+    from types import SimpleNamespace
+
+    error = SimpleNamespace(
+        status_code=status,
+        body={"error": {"code": code, "param": param, "message": "provider detail with private input"}},
+    )
+    summary = _openai_error_summary(error, "gpt-6-luna")
+    assert expected.lower() in summary.lower()
+    assert "private input" not in summary
+    if status:
+        assert f"HTTP {status}" in summary
+    if code:
+        assert f"code={code}" in summary
+    if param:
+        assert f"param={param}" in summary
+
+
 def test_openai_length_error_becomes_call_error_for_fallback(monkeypatch):
-    """gpt-5.6-luna có thể dùng hết token cho suy luận ẩn → LengthFinishReasonError phải thành LLMCallError (dự phòng)."""
+    """GPT-6 Luna hết token suy luận → LengthFinishReasonError phải thành LLMCallError (dự phòng)."""
     import openai
 
     from src.services.llm import LLMCallError
 
-    provider = OpenAIProvider(Settings(llm_provider="openai", **KEYS), "gpt-5.6-luna")
+    provider = OpenAIProvider(Settings(llm_provider="openai", **KEYS), "gpt-6-luna")
 
     class Boom:
         def invoke(self, messages):
