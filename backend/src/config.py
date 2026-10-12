@@ -45,11 +45,11 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     google_api_key: str = ""
     # Model OpenAI theo từng bước (hướng C). MODEL_NAME là model chính; để trống MODEL_<BƯỚC> thì dùng MODEL_NAME.
-    model_name: str = "gpt-5.6-luna"
+    model_name: str = "gpt-6-luna"
     model_planner: str = ""
     model_codegen: str = ""
     model_testgen: str = ""
-    model_optimizer: str = "gpt-5.6-terra"
+    model_optimizer: str = "gpt-6.1-sol"
     # Google Gemini: dùng khi LLM_PROVIDER=google, hoặc làm dự phòng khi OpenAI lỗi (LLM_FALLBACK=google)
     google_model_name: str = "gemini-3.1-flash-lite"
     llm_fallback: Literal["none", "google"] = "google"
