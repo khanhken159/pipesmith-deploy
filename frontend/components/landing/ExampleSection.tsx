@@ -5,7 +5,7 @@ export function ExampleSection() {
     <section className={styles.exampleSection} id="vi-du" aria-labelledby="example-title">
       <div className={styles.container}>
         <h2 className={styles.sectionTitle} id="example-title">
-          Một câu thành SQL đã kiểm thử
+          Từ yêu cầu đến SQL có kiểm tra
         </h2>
         <p className={styles.sectionNote}>Ví dụ minh họa, không phải kết quả chạy thật.</p>
 
@@ -15,6 +15,7 @@ export function ExampleSection() {
               1. Yêu cầu
             </h3>
             <p className={styles.requestText}>“Tạo báo cáo doanh thu theo ngày từ dữ liệu đơn hàng.”</p>
+            <p className={styles.exampleCaption}>Planner sẽ cần xác định nguồn đơn hàng, cột ngày, cột tiền và cách tính doanh thu.</p>
           </article>
 
           <article className={styles.exampleCard} aria-labelledby="plan-title">
@@ -30,12 +31,20 @@ export function ExampleSection() {
                 <dd className={styles.codeText}>orders</dd>
               </div>
               <div className={styles.detailRow}>
-                <dt>Nhóm theo</dt>
-                <dd>Ngày</dd>
+                <dt>Ngày</dt>
+                <dd className={styles.codeText}>order_date</dd>
+              </div>
+              <div className={styles.detailRow}>
+                <dt>Tính</dt>
+                <dd className={styles.codeText}>SUM(total_amount)</dd>
               </div>
               <div className={styles.detailRow}>
                 <dt>Lọc</dt>
-                <dd>Đơn hoàn tất</dd>
+                <dd className={styles.codeText}>status = completed</dd>
+              </div>
+              <div className={styles.detailRow}>
+                <dt>Gộp theo</dt>
+                <dd>Ngày</dd>
               </div>
             </dl>
           </article>
@@ -82,10 +91,25 @@ export function ExampleSection() {
               >
                 <path d="m5 12.5 4.5 4.5L19 7.5" />
               </svg>
-              Kiểm thử đạt
+              Tự kiểm tra khi chạy
             </p>
           </article>
         </div>
+
+        <aside className={styles.inputGuide} aria-labelledby="input-guide-title">
+          <div className={styles.inputGuideIntro}>
+            <p className={styles.sectionEyebrow}>ĐẦU VÀO CẦN CHUẨN BỊ</p>
+            <h3 id="input-guide-title">Muốn tạo báo cáo này, cần những gì?</h3>
+            <p>Không cần viết SQL. Hãy mô tả dữ liệu và cách bạn muốn tính; phần chưa rõ có thể được Planner hỏi lại.</p>
+          </div>
+          <ul className={styles.inputList}>
+            <li><span>01</span><div><strong>Nguồn đơn hàng</strong><p>Bảng hoặc file đã thêm vào workspace.</p></div></li>
+            <li><span>02</span><div><strong>Ngày cần thống kê</strong><p>Ví dụ: ngày đặt hàng hay ngày thanh toán.</p></div></li>
+            <li><span>03</span><div><strong>Định nghĩa doanh thu</strong><p>Cột tiền cần cộng và cách xử lý đơn hủy/hoàn.</p></div></li>
+            <li><span>04</span><div><strong>Điều kiện báo cáo</strong><p>Trạng thái đơn, khoảng ngày hoặc kênh bán nếu cần lọc.</p></div></li>
+          </ul>
+          <p className={styles.inputGuideNote}>Tên bảng, cột và trạng thái trong ví dụ chỉ để minh họa. Planner sẽ đối chiếu với danh mục nguồn thực tế.</p>
+        </aside>
       </div>
     </section>
   );

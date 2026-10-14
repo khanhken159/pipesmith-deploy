@@ -14,8 +14,14 @@ export function Navbar() {
           <Link className={styles.navLink} href="#vi-du">
             Ví dụ
           </Link>
+          <Link className={styles.navLink} href="#vai-tro-agent">
+            Các Agent
+          </Link>
           <Link className={styles.navLink} href="#cach-hoat-dong">
             Cách hoạt động
+          </Link>
+          <Link className={styles.navLink} href="#kiem-soat">
+            Kiểm soát
           </Link>
           <Link className={styles.navLink} href="/login">
             Đăng nhập

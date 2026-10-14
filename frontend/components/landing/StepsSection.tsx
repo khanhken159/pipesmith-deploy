@@ -1,10 +1,30 @@
 import styles from "./landing.module.css";
 
 const steps = [
-  { number: "01", title: "Mô tả yêu cầu", detail: "Nói điều bạn cần.", approval: false },
-  { number: "02", title: "Duyệt kế hoạch", detail: "Xem trước khi viết code.", approval: true },
-  { number: "03", title: "Tạo và kiểm thử", detail: "Chạy thử trong sandbox, tự sửa nếu lỗi.", approval: false },
-  { number: "04", title: "Duyệt kết quả", detail: "Chấp nhận để hoàn tất.", approval: true },
+  {
+    number: "01",
+    title: "Mô tả yêu cầu",
+    detail: "Chọn nguồn dữ liệu, nêu chỉ số, cách nhóm và bộ lọc. Nếu thiếu thông tin, Planner sẽ hỏi lại.",
+    approval: false,
+  },
+  {
+    number: "02",
+    title: "Duyệt kế hoạch",
+    detail: "Xem nguồn, cột, cách tính và giả định. Bạn duyệt hoặc yêu cầu Planner chỉnh trước khi tạo code.",
+    approval: true,
+  },
+  {
+    number: "03",
+    title: "Tạo và kiểm thử",
+    detail: "Codegen tạo dbt và DAG; Testgen tính kết quả độc lập. Safety và Sandbox rà soát, chạy thử rồi chuyển lỗi về sửa.",
+    approval: false,
+  },
+  {
+    number: "04",
+    title: "Duyệt kết quả",
+    detail: "Xem SQL, kết quả mẫu và kiểm tra. Chấp nhận để hoàn tất hoặc từ chối kèm ghi chú chỉnh sửa.",
+    approval: true,
+  },
 ];
 
 export function StepsSection() {
