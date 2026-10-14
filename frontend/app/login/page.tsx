@@ -7,6 +7,9 @@ import Link from "next/link";
 import { useApp } from "@/components/AppContext";
 import { EyeIcon, EyeOffIcon } from "@/components/icons";
 import { messageOf } from "@/lib/api";
+import { landingBody, landingDisplay, landingMono } from "@/lib/landing-fonts";
+
+import styles from "./login.module.css";
 
 // Đăng nhập bằng tài khoản doanh nghiệp cấp. KHÔNG có đăng ký tự do (CLAUDE.md mục 1–2).
 // "Ghi nhớ" chỉ lưu TÊN đăng nhập trên máy này; mật khẩu không bao giờ lưu ở trình duyệt.
@@ -78,27 +81,24 @@ function LoginForm() {
   }
 
   return (
-    <div className="auth-form-wrap">
-      <Link href="/" className="back-link">
-        ← Về trang giới thiệu
+    <section className={styles.formPane} aria-labelledby="login-title">
+      <Link href="/" className={styles.backLink}>
+        <span aria-hidden="true">←</span> Về trang giới thiệu
       </Link>
-      <div className="auth-card">
-        <div className="eyebrow">
-          <span className="eyebrow-dot" />
+      <div className={styles.authCard}>
+        <div className={styles.eyebrow}>
+          <span className={styles.eyebrowDot} aria-hidden="true" />
           BƯỚC TIẾP THEO / ĐĂNG NHẬP
         </div>
-        <h1 id="login-title">
-          Chào mừng
-          <br />
-          trở lại.
-        </h1>
-        <p className="subtitle">Đăng nhập để tiếp tục vào không gian làm việc PipeSmith.</p>
+        <h1 id="login-title">Chào mừng trở lại.</h1>
+        <p className={styles.subtitle}>Đăng nhập để tiếp tục vào không gian làm việc PipeSmith.</p>
 
-        <form className="auth-login-form" method="post" onSubmit={submit} aria-labelledby="login-title" noValidate>
-          <label htmlFor="login-user" className="formlabel">
+        <form className={styles.loginForm} method="post" onSubmit={submit} aria-labelledby="login-title" noValidate>
+          <label htmlFor="login-user" className={styles.formLabel}>
             Email hoặc tên đăng nhập
           </label>
           <input
+            className={styles.textInput}
             id="login-user"
             name="username"
             type="text"
@@ -113,11 +113,12 @@ function LoginForm() {
             required
           />
 
-          <label htmlFor="login-password" className="formlabel">
+          <label htmlFor="login-password" className={styles.formLabel}>
             Mật khẩu
           </label>
-          <div className="password-field">
+          <div className={styles.passwordField}>
             <input
+              className={styles.textInput}
               id="login-password"
               name="password"
               type={showPassword ? "text" : "password"}
@@ -131,7 +132,7 @@ function LoginForm() {
             />
             <button
               type="button"
-              className="password-toggle"
+              className={styles.passwordToggle}
               onClick={() => setShowPassword((visible) => !visible)}
               aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               aria-pressed={showPassword}
@@ -140,61 +141,86 @@ function LoginForm() {
             </button>
           </div>
 
-          <label className="auth-remember">
+          <label className={styles.remember}>
             <input type="checkbox" checked={keep} onChange={(event) => setKeep(event.target.checked)} />
             <span>Ghi nhớ tên đăng nhập</span>
           </label>
 
           {error && (
-            <p className="login-error" role="alert">
+            <p className={styles.loginError} role="alert">
               {error}
             </p>
           )}
 
           <button
             type="submit"
-            className="btn btn-dark auth-submit"
+            className={styles.submitButton}
             disabled={sending || !username.trim() || !password}
           >
             {sending ? "Đang đăng nhập…" : "Đăng nhập"}
-            {!sending && <span className="arrow">↗</span>}
+            {!sending && <span aria-hidden="true">↗</span>}
           </button>
         </form>
 
-        <p className="form-help">
+        <p className={styles.formHelp}>
           Chưa có tài khoản? <strong>Liên hệ quản trị viên</strong> để được cấp.
         </p>
       </div>
-    </div>
+      <p className={styles.secureNote}><span aria-hidden="true">✓</span> Không gian làm việc dành cho thành viên được cấp quyền</p>
+    </section>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="marketingRoot">
-      <main className="auth-page" aria-label="Đăng nhập PipeSmith">
-        <div className="auth-side">
-          <Link className="brand" href="/" aria-label="PipeSmith về trang giới thiệu">
-            <span className="brandmark" aria-hidden="true">
-              <span />
-            </span>
-            pipesmith.
-          </Link>
-          <div className="auth-content">
-            <div className="auth-kicker">WELCOME TO YOUR DATA WORKSPACE</div>
-            <h2>
-              Biến dữ liệu
-              <br />
-              thành <em>giá trị.</em>
-            </h2>
+    <main className={`${styles.loginRoot} ${landingDisplay.variable} ${landingBody.variable} ${landingMono.variable}`} aria-label="Đăng nhập PipeSmith">
+      <div className={styles.loginShell}>
+        <section className={styles.showcase} aria-label="Không gian làm việc PipeSmith">
+          <header className={styles.showcaseHeader}>
+            <Link className={styles.brand} href="/" aria-label="PipeSmith về trang giới thiệu">
+              <span className={styles.brandMark} aria-hidden="true"><span /></span>
+              <span>pipe<span className={styles.brandAccent}>smith</span><span className={styles.brandDot}>.</span></span>
+            </Link>
+            <span className={styles.productTag}>AI DATA WORKSPACE</span>
+          </header>
+
+          <div className={styles.showcaseCopy}>
+            <p className={styles.kicker}><span aria-hidden="true" /> PIPELINE CÓ AI, BẠN GIỮ QUYỀN KIỂM SOÁT</p>
+            <h2>Biến dữ liệu<br />thành <em>giá trị.</em></h2>
             <p>Tiếp tục vào workspace để khám phá quy trình kết hợp AI Agent với quyền kiểm soát của con người.</p>
           </div>
-          <div className="auth-bottom">PIPE SMITH / AI DATA WORKFLOW</div>
-        </div>
-        <Suspense fallback={<div className="auth-form-wrap" aria-busy="true" />}>
+
+          <div className={styles.workflowCard} aria-label="Minh họa các bước của pipeline">
+            <div className={styles.workflowTop}>
+              <span className={styles.windowDots} aria-hidden="true"><i /><i /><i /></span>
+              <span>pipesmith / workspace</span>
+              <span className={styles.liveBadge}><i /> WORKSPACE</span>
+            </div>
+            <div className={styles.workflowBody}>
+              <div className={styles.workflowTitle}>
+                <span className={styles.workflowIcon} aria-hidden="true">⌘</span>
+                <div><small>YÊU CẦU DỮ LIỆU</small><strong>Pipeline rõ ràng, từ đầu đến cuối.</strong></div>
+              </div>
+              <div className={styles.stepsLabel}><span>QUY TRÌNH</span><span>6 giai đoạn chính</span></div>
+              <div className={styles.stepGrid}>
+                <div><i className={styles.stepBlue}>01</i><span>Planner</span></div>
+                <div><i className={styles.stepAmber}>02</i><span>Duyệt kế hoạch</span></div>
+                <div><i className={styles.stepViolet}>03</i><span>Codegen</span></div>
+                <div><i className={styles.stepGreen}>04</i><span>Testgen</span></div>
+                <div><i className={styles.stepSlate}>05</i><span>Safety + Sandbox</span></div>
+                <div><i className={styles.stepBlue}>06</i><span>Optimizer</span></div>
+              </div>
+              <div className={styles.reviewNote}><span aria-hidden="true">✓</span> Bạn duyệt kế hoạch và kết quả trước khi hoàn tất</div>
+            </div>
+          </div>
+
+          <footer className={styles.showcaseFooter}><span>AI-POWERED DATA PIPELINE WORKSPACE</span><span>P·113</span></footer>
+        </section>
+
+        <Suspense fallback={<section className={styles.formPane} aria-busy="true" aria-label="Đang tải biểu mẫu đăng nhập" />}>
           <LoginForm />
         </Suspense>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

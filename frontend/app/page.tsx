@@ -1,14 +1,13 @@
-"use client";
+import type { Metadata } from "next";
 
-import { useApp } from "@/components/AppContext";
+import { HomeRoute } from "@/components/HomeRoute";
 import { LandingPage } from "@/components/LandingPage";
-import { AdminHome, EngineerHome, ReviewerHome } from "@/components/home/Dashboard";
 
-// Trang giới thiệu công khai; người đã đăng nhập vẫn đi thẳng tới workspace theo vai trò.
+export const metadata: Metadata = {
+  title: "PipeSmith — AI Data Pipeline Workspace",
+  description: "Mô tả báo cáo bạn cần. Nhận SQL đã kiểm thử. Bạn duyệt kế hoạch trước, duyệt kết quả sau.",
+};
+
 export default function HomePage() {
-  const { auth, user } = useApp();
-  if (auth !== "in" || !user) return <LandingPage />;
-  if (user?.role === "reviewer") return <ReviewerHome />;
-  if (user?.role === "admin") return <AdminHome />;
-  return <EngineerHome />;
+  return <HomeRoute landingPage={<LandingPage />} />;
 }
