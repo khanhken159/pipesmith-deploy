@@ -7,11 +7,11 @@ import { mono, sans } from "@/lib/fonts";
 
 import "../styles/tokens.css";
 import "./globals.css";
+import "./marketing.css";
 
 export const metadata: Metadata = {
-  title: "P-113 Pipeline Agent",
-  description:
-    "Agent sinh và tối ưu pipeline ELT/ETL (dbt + Airflow), chạy thử trong sandbox DuckDB, DE duyệt trước khi merge.",
+  title: "PipeSmith — AI Data Pipeline Workspace",
+  description: "Từ yêu cầu ngôn ngữ tự nhiên đến pipeline dữ liệu có kiểm tra và phê duyệt.",
 };
 
 // Áp dụng giao diện sáng/tối đã lưu trước khi vẽ trang (tránh nháy màu).

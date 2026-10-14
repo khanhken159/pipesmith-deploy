@@ -150,13 +150,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { auth, user } = useApp();
   const onLogin = pathname.startsWith("/login");
+  const onPublicHome = pathname === "/";
 
-  // Mọi trang (trừ đăng nhập) cần phiên; hết phiên → về đăng nhập, quay lại đúng trang sau khi đăng nhập
+  // Landing page công khai; các trang workspace khác cần phiên và quay lại đúng trang sau khi đăng nhập.
   useEffect(() => {
-    if (auth === "out" && !onLogin) router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-  }, [auth, onLogin, pathname, router]);
+    if (auth === "out" && !onLogin && !onPublicHome) router.replace("/login?next=" + encodeURIComponent(pathname));
+  }, [auth, onLogin, onPublicHome, pathname, router]);
 
-  if (onLogin) return <>{children}</>;
+  if (onLogin || (onPublicHome && auth !== "in")) return <>{children}</>;
   if (auth !== "in") {
     return (
       <div className="page">
