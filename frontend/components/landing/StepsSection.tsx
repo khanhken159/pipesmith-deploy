@@ -46,7 +46,13 @@ export function StepsSection() {
             </li>
           ))}
         </ol>
-        <p className={styles.agentSequence}>Planner → Codegen → Testgen → Safety + Sandbox → Optimizer</p>
+        <ul className={styles.agentSequence} aria-label="Các tác nhân và bước kiểm tra trong pipeline">
+          <li>Planner</li>
+          <li>Codegen</li>
+          <li>Testgen</li>
+          <li>Safety + Sandbox</li>
+          <li>Optimizer</li>
+        </ul>
       </div>
     </section>
   );

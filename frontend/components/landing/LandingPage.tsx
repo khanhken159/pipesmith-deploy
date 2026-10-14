@@ -7,6 +7,7 @@ import { Footer } from "./Footer";
 import { Hero } from "./Hero";
 import { Navbar } from "./Navbar";
 import { QualitySection } from "./QualitySection";
+import { ScrollReveal } from "./ScrollReveal";
 import { StepsSection } from "./StepsSection";
 import styles from "./landing.module.css";
 
@@ -16,11 +17,11 @@ export function LandingPage() {
       <Navbar />
       <main id="main">
         <Hero />
-        <ExampleSection />
-        <AgentsSection />
-        <StepsSection />
-        <QualitySection />
-        <CtaBand />
+        <ScrollReveal><ExampleSection /></ScrollReveal>
+        <ScrollReveal><AgentsSection /></ScrollReveal>
+        <ScrollReveal><StepsSection /></ScrollReveal>
+        <ScrollReveal><QualitySection /></ScrollReveal>
+        <ScrollReveal><CtaBand /></ScrollReveal>
       </main>
       <Footer />
     </div>

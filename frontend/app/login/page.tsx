@@ -156,8 +156,10 @@ function LoginForm() {
             type="submit"
             className={styles.submitButton}
             disabled={sending || !username.trim() || !password}
+            aria-busy={sending}
           >
             {sending ? "Đang đăng nhập…" : "Đăng nhập"}
+            {sending && <span className={styles.submitSpinner} aria-hidden="true" />}
             {!sending && <span aria-hidden="true">↗</span>}
           </button>
         </form>

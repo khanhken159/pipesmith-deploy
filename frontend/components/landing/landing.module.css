@@ -675,10 +675,91 @@
 }
 
 .agentSequence {
-  margin-top: 28px !important;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 0;
+  margin: 28px 0 0 !important;
+  padding: 0;
   color: var(--text-muted);
   font-size: 12px;
   line-height: 1.8;
+  list-style: none;
+}
+
+.agentSequence li {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.agentSequence li + li::before {
+  color: #98a2b3;
+  content: "→";
+  font-family: var(--landing-body), system-ui, sans-serif;
+}
+
+.reveal {
+  display: block;
+}
+
+.revealPending > section {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.revealShown > section {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 520ms ease, transform 520ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.revealShown .agentGrid > .agentCard,
+.revealShown .exampleGrid > .exampleCard,
+.revealShown .qualityGrid > .qualityCard,
+.revealShown .stepsGrid > .stepCard {
+  animation: revealCardEnter 440ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.revealShown .agentGrid > :nth-child(2),
+.revealShown .exampleGrid > :nth-child(2),
+.revealShown .qualityGrid > :nth-child(2),
+.revealShown .stepsGrid > :nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.revealShown .agentGrid > :nth-child(3),
+.revealShown .exampleGrid > :nth-child(3),
+.revealShown .qualityGrid > :nth-child(3),
+.revealShown .stepsGrid > :nth-child(3) {
+  animation-delay: 160ms;
+}
+
+.revealShown .agentGrid > :nth-child(4),
+.revealShown .qualityGrid > :nth-child(4),
+.revealShown .stepsGrid > :nth-child(4) {
+  animation-delay: 240ms;
+}
+
+.revealShown .agentSequence li {
+  animation: revealCardEnter 400ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.revealShown .agentSequence li:nth-child(2) { animation-delay: 90ms; }
+.revealShown .agentSequence li:nth-child(3) { animation-delay: 180ms; }
+.revealShown .agentSequence li:nth-child(4) { animation-delay: 270ms; }
+.revealShown .agentSequence li:nth-child(5) { animation-delay: 360ms; }
+
+@keyframes revealCardEnter {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 
 .qualitySection {
@@ -847,6 +928,18 @@
   }
 }
 
+@keyframes pipelineStepEnter {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
 @keyframes approvalPulse {
   0% {
     box-shadow: 0 0 0 0 rgb(181 71 8 / 27%);
@@ -957,11 +1050,23 @@
   .heroActions,
   .heroExample,
   .heroExampleMeta .approvalBadge::before,
+  .revealShown .agentGrid > .agentCard,
+  .revealShown .exampleGrid > .exampleCard,
+  .revealShown .qualityGrid > .qualityCard,
+  .revealShown .stepsGrid > .stepCard,
+  .revealShown .agentSequence li,
   .exampleCard,
   .agentCard,
   .stepCard,
   .qualityCard {
     animation: none;
+    transition: none;
+  }
+
+  .revealPending > section,
+  .revealShown > section {
+    opacity: 1;
+    transform: none;
     transition: none;
   }
 }
