@@ -197,6 +197,7 @@
 
 .heroCopy {
   flex: 1 1 480px;
+  animation: heroCopyEnter 620ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
 }
 
 .heroTitle {
@@ -221,6 +222,7 @@
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 36px;
+  animation: heroCopyEnter 620ms 120ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
 }
 
 .secondaryButton {
@@ -245,6 +247,8 @@
   border-radius: 20px;
   background: var(--surface);
   box-shadow: 0 12px 32px rgb(16 24 40 / 8%);
+  animation: heroCardEnter 760ms 120ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transition: transform 220ms ease, box-shadow 220ms ease;
 }
 
 .heroPrompt {
@@ -266,8 +270,19 @@
 }
 
 .heroExampleMeta .approvalBadge {
+  gap: 8px;
   font-size: 14px;
   padding: 6px 12px;
+}
+
+.heroExampleMeta .approvalBadge::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #b54708;
+  box-shadow: 0 0 0 0 rgb(181 71 8 / 27%);
+  animation: approvalPulse 2.4s ease-out infinite;
+  content: "";
 }
 
 .approvalBadge {
@@ -424,6 +439,7 @@
   border-radius: 16px;
   padding: 22px;
   background: var(--surface);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
 .agentCode {
@@ -482,6 +498,7 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--page-bg);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
 .cardTitle {
@@ -626,6 +643,7 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
 .approvalCard {
@@ -714,6 +732,7 @@
   border-radius: 14px;
   padding: 18px;
   background: rgb(255 255 255 / 6%);
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
 }
 
 .qualityNumber {
@@ -804,6 +823,67 @@
   font-size: 14px;
 }
 
+@keyframes heroCopyEnter {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes heroCardEnter {
+  from {
+    opacity: 0;
+    translate: 18px 0;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes approvalPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(181 71 8 / 27%);
+  }
+
+  65%,
+  100% {
+    box-shadow: 0 0 0 6px rgb(181 71 8 / 0%);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .heroExample:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 44px rgb(16 24 40 / 12%);
+  }
+
+  .exampleCard:hover,
+  .agentCard:hover,
+  .stepCard:hover:not(.approvalCard) {
+    transform: translateY(-3px);
+    border-color: #c7d7fe;
+    box-shadow: 0 10px 24px rgb(16 24 40 / 7%);
+  }
+
+  .approvalCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgb(16 24 40 / 7%);
+  }
+
+  .qualityCard:hover {
+    transform: translateY(-3px);
+    border-color: rgb(178 204 255 / 55%);
+    background: rgb(255 255 255 / 9%);
+  }
+}
+
 @media (max-width: 960px) {
   .agentGrid,
   .qualityGrid {
@@ -872,7 +952,16 @@
   .navCta,
   .primaryButton,
   .secondaryButton,
-  .ctaButton {
+  .ctaButton,
+  .heroCopy,
+  .heroActions,
+  .heroExample,
+  .heroExampleMeta .approvalBadge::before,
+  .exampleCard,
+  .agentCard,
+  .stepCard,
+  .qualityCard {
+    animation: none;
     transition: none;
   }
 }
